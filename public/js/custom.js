@@ -1,4 +1,4 @@
-// Weglot 翻译按钮 + 跑马灯移至箭头下方 + 隐藏“心情随笔”卡片
+// Weglot 翻译按钮 + 隐藏标题与心情随笔 + 跑马灯首帧直达底部
 setTimeout(function() {
   // ==================== 1. Weglot 翻译按钮注入逻辑 ====================
   var script = document.createElement('script');
@@ -45,23 +45,37 @@ setTimeout(function() {
   };
   document.body.appendChild(script);
 
-  // ==================== 2. 样式与布局改造（隐藏心情随笔 + 跑马灯下沉到箭头下方） ====================
+  // ==================== 2. 全局 CSS 拦截：消灭标题、消灭心情随笔、跑马灯首帧定位 ====================
   var style = document.createElement('style');
   style.innerHTML = `
-    /* 🎯 隐藏屏幕中间的“心情随笔”分类悬浮卡片 */
-    a:has(> div), div[class*="group"]:has(> div) {
-      /* 通过精准匹配文字内容或者卡片特征来隐藏，如果下面脚本生效则以脚本为准 */
+    /* 🎯 目标 1：彻底隐藏屏幕中间的 "Evan Space" 主标题 */
+    h1.text-4xl.font-bold,
+    .hero-title,
+    header h1 {
+      display: none !important;
+    }
+
+    /* 🎯 目标 2：通过 CSS 直接锁定打字机跑马灯，从第一帧起就呆在底部，绝对不闪烁！ */
+    #typed, 
+    div:has(> #typed) {
+      position: absolute !important;
+      bottom: 15px !important;
+      left: 0 !important;
+      right: 0 !important;
+      margin: auto !important;
+      z-index: 20 !important;
+      text-align: center !important;
+      width: 100% !important;
+      max-width: 900px !important;
     }
   `;
   document.head.appendChild(style);
 
-  // 运行时动态巡逻脚本
+  // ==================== 3. 动态巡逻清道夫（负责消灭“心情随笔”卡片） ====================
   setInterval(function() {
-    // A. 遍历并隐藏包含“心情随笔”的卡片元素
     var allDivs = document.querySelectorAll('div, a');
     allDivs.forEach(function(el) {
       if (el.innerText && el.innerText.trim() === '心情随笔' && el.children.length < 3) {
-        // 向上找到它的卡片外框并隐藏
         var card = el.closest('.cursor-pointer') || el.closest('div[class*="rounded"]');
         if (card) {
           card.style.display = 'none';
@@ -70,24 +84,6 @@ setTimeout(function() {
         }
       }
     });
+  }, 500);
 
-    // B. 将跑马灯文字向下推到“向下箭头”的下方
-    var typedElem = document.getElementById('typed');
-    if (typedElem) {
-      var subContainer = typedElem.parentElement;
-      if (subContainer && subContainer !== document.body) {
-        subContainer.style.position = 'absolute';
-        // 🌟 将 bottom 设为 25px ~ 35px，让跑马灯直接落到向下箭头的正下方！
-        subContainer.style.bottom = '30px'; 
-        subContainer.style.left = '0';
-        subContainer.style.right = '0';
-        subContainer.style.margin = 'auto';
-        subContainer.style.zIndex = '20';
-        subContainer.style.textAlign = 'center';
-        subContainer.style.width = '100%';
-        subContainer.style.maxWidth = '900px';
-      }
-    }
-  }, 1000);
-
-}, 1000);
+}, 500);
