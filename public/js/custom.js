@@ -1,18 +1,6 @@
-// 在 custom.js 里追加这段样式控制代码
+// Weglot 翻译按钮 + 跑马灯下沉到底部 + 隐藏主标题 终极完整版
 setTimeout(function() {
-  var style = document.createElement('style');
-  style.innerHTML = `
-    /* 调整跑马灯欢迎语的上下位置 */
-    .group.flex.flex-col.items-center, /* 根据你的 Hexo 布局组件调整 */
-    div:has(> #typed) {
-      margin-top: 600px !important; /* 改成负数可以把它往上提，改成正数往下压 */
-    }
-  `;
-  document.head.appendChild(style);
-}, 1000);
-
-// Weglot 终极分身术版：完美间距微调
-setTimeout(function() {
+  // ==================== 1. Weglot 翻译按钮注入逻辑 ====================
   var script = document.createElement('script');
   script.src = "https://cdn.weglot.com/weglot.min.js";
   
@@ -22,7 +10,6 @@ setTimeout(function() {
         hide_switcher: true
     });
     
-    // 永久巡逻进程
     setInterval(function() {
       var searchIcons = document.querySelectorAll('.fa-search, .fa-magnifying-glass, .search-button i, [aria-label*="search" i]');
       if (searchIcons.length === 0) return;
@@ -36,17 +23,12 @@ setTimeout(function() {
 
         var langBtn = document.createElement('div');
         langBtn.id = btnId;
-        
-        // 🌟 核心美化调整：
-        // 1. 改为 margin: 0 12px; 让它左边（放大镜）和右边（播客图标）都有 12px 的对称间距！
-        // 2. 略微调大字号到 15px，并让它垂直居中，视觉上更稳重。
         langBtn.style.cssText = 'cursor: pointer; margin: 0 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; opacity: 0.8; transition: opacity 0.3s; color: inherit; line-height: 1;';
         
         langBtn.onmouseover = function() { this.style.opacity = '1'; };
         langBtn.onmouseout = function() { this.style.opacity = '0.8'; };
         
         function updateText() {
-          // 手机端中/英依然保持极简
           langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中';
         }
         updateText();
@@ -57,12 +39,39 @@ setTimeout(function() {
         };
         
         Weglot.on('languageChanged', updateText);
-
-        // 安插在放大镜的右边
         wrapper.parentNode.insertBefore(langBtn, wrapper.nextSibling);
       });
     }, 1000); 
   };
-  
   document.body.appendChild(script);
+
+  // ==================== 2. 隐藏主标题 + 跑马灯下沉到底部逻辑 ====================
+  setInterval(function() {
+    // 隐藏首屏中间的 "Evan Space" 主标题（精准匹配页面中的大标题 h1）
+    var mainTitles = document.querySelectorAll('h1.text-4xl, h1.font-bold');
+    mainTitles.forEach(function(title) {
+      // 确保只隐藏首屏那个带有 "Evan Space" 的大标题
+      if (title.innerText && title.innerText.includes('Evan Space')) {
+        title.style.display = 'none';
+      }
+    });
+
+    // 将跑马灯文字独立下沉到底部
+    var typedElem = document.getElementById('typed');
+    if (typedElem) {
+      var subContainer = typedElem.parentElement;
+      if (subContainer && subContainer !== document.body) {
+        subContainer.style.position = 'absolute';
+        subContainer.style.bottom = '80px'; // 距离底部高度，可按需微调
+        subContainer.style.left = '0';
+        subContainer.style.right = '0';
+        subContainer.style.margin = 'auto';
+        subContainer.style.zIndex = '20';
+        subContainer.style.textAlign = 'center';
+        subContainer.style.width = '100%';
+        subContainer.style.maxWidth = '900px';
+      }
+    }
+  }, 1000);
+
 }, 1000);
