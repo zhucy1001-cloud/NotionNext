@@ -1,4 +1,4 @@
-// Weglot 纯净回退版：精准插入放大镜左侧
+// Weglot 终极分身术版：全网捕获放大镜 (完美解决双端问题)
 setTimeout(function() {
   var script = document.createElement('script');
   script.src = "https://cdn.weglot.com/weglot.min.js";
@@ -9,74 +9,51 @@ setTimeout(function() {
         hide_switcher: true
     });
     
-    function injectToLeftOfSearch() {
-      // 1. 如果已经存在，跳过
-      if (document.getElementById('evan-lang-btn')) return;
+    // 开启永久巡逻进程，每 1 秒扫描一次网页全图
+    setInterval(function() {
+      // 1. 抓捕网页里【所有】的放大镜图标 (一网打尽电脑端和手机端)
+      var searchIcons = document.querySelectorAll('.fa-search, .fa-magnifying-glass, .search-button i, [aria-label*="search" i]');
+      
+      if (searchIcons.length === 0) return;
 
-      // 2. 没有任何多余的限制，在全网页直接抓取放大镜图标！
-      var searchIcon = document.querySelector('.search-button') || 
-                       document.querySelector('.fa-search') || 
-                       document.querySelector('svg.search-icon') ||
-                       document.querySelector('[aria-label*="search" i]');
+      // 2. 遍历每一个放大镜，挨个给它们发配一个 EN 按钮
+      searchIcons.forEach(function(icon, index) {
+        var btnId = 'evan-lang-btn-' + index; // 给每个按钮独一无二的编号
 
-      if (!searchIcon) return; // 没找到说明网页还在加载，继续等
-      
-      // 3. 找到放大镜最外层的点击框，防止我们插错层级
-      var targetNode = searchIcon.closest('.search-button') || 
-                       searchIcon.closest('a') || 
-                       searchIcon.closest('div.cursor-pointer') || 
-                       searchIcon;
-                       
-      var parent = targetNode.parentNode;
-      if (!parent) return;
+        // 如果这个放大镜旁边已经有咱们的按钮了，就跳过
+        if (document.getElementById(btnId)) return;
 
-      // 4. 创建简单干净的 EN 按钮
-      var langBtn = document.createElement('a');
-      langBtn.id = 'evan-lang-btn';
-      
-      // 这里的 margin: 0 15px; 会在它的左右各撑开 15px 的间距，视觉上极其舒适
-      langBtn.style.cssText = 'cursor: pointer; margin: 0 15px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; opacity: 0.8; transition: opacity 0.3s; color: inherit; text-decoration: none;';
-      
-      langBtn.onmouseover = function() { this.style.opacity = '1'; };
-      langBtn.onmouseout = function() { this.style.opacity = '0.8'; };
-      
-      function updateText() {
-        langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中文';
-      }
-      updateText();
-      
-      langBtn.onclick = function(e) {
-        e.preventDefault(); 
-        e.stopPropagation();
-        Weglot.switchTo(Weglot.getCurrentLang() === 'zh' ? 'en' : 'zh');
-      };
-      
-      Weglot.on('languageChanged', updateText);
+        // 找到这个放大镜的点击外框
+        var wrapper = icon.closest('.cursor-pointer') || icon.closest('a') || icon.closest('.search-button') || icon.parentNode;
+        if (!wrapper || !wrapper.parentNode) return;
 
-      // 5. 核心动作：将它插在放大镜的前面（即左侧）
-      parent.insertBefore(langBtn, targetNode);
-      console.log("✅ 报告站长：EN 按钮已成功安插在放大镜左侧！");
-    }
-
-    // 守护进程：如果 React 刷新网页把按钮刷没了，1 毫秒内把它补回来
-    var observer = new MutationObserver(function() {
-        if (!document.getElementById('evan-lang-btn')) {
-            injectToLeftOfSearch();
+        // 3. 创建纯净的 EN 按钮
+        var langBtn = document.createElement('div');
+        langBtn.id = btnId;
+        
+        // 样式优化：宽度高度设定为 32px 完美契合 Hexo 原生图标，放在放大镜的正右侧 (margin-left: 10px)
+        langBtn.style.cssText = 'cursor: pointer; width: 32px; height: 32px; margin-left: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; opacity: 0.8; transition: opacity 0.3s; color: inherit;';
+        
+        langBtn.onmouseover = function() { this.style.opacity = '1'; };
+        langBtn.onmouseout = function() { this.style.opacity = '0.8'; };
+        
+        function updateText() {
+          // 手机端空间小，中文显示“中”会更精致
+          langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中';
         }
-    });
-    
-    // 监视整个网页
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    // 页面刚加载时，主动寻找 20 次
-    var attempts = 0;
-    var timer = setInterval(function() {
-        injectToLeftOfSearch();
-        if (document.getElementById('evan-lang-btn') || attempts > 20) {
-            clearInterval(timer);
-        }
-        attempts++;
-    }, 500);
+        updateText();
+        
+        langBtn.onclick = function(e) {
+          e.preventDefault(); e.stopPropagation();
+          Weglot.switchTo(Weglot.getCurrentLang() === 'zh' ? 'en' : 'zh');
+        };
+        
+        Weglot.on('languageChanged', updateText);
+
+        // 4. 精准安插在放大镜的右边 (即下一个兄弟节点之前)
+        wrapper.parentNode.insertBefore(langBtn, wrapper.nextSibling);
+      });
+    }, 1000); // 永久定时器，完美抗击 React 刷新机制
   };
   
   document.body.appendChild(script);
