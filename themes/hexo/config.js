@@ -47,5 +47,9 @@ const CONFIG = {
 
   /** 文章详情页客户端切换时，主栏显示卡片+转圈占位（无全屏遮罩；已有独立 LoadingCover 的主题无需此项） */
   HEXO_ARTICLE_ROUTE_LOADING: true
+    
+// 🎯【新增】配置你的 Notion 首页壁纸/相册页面 ID
+  HOME_COVER_PAGE_ID: '3c77dce66b89809f889dfdebb674a616'
+  
 }
 export default CONFIG
