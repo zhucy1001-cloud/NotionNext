@@ -1,27 +1,41 @@
-// Weglot 翻译按钮 + 全局首屏容器强行沉底 + 彻底净化大标题与心情随笔
+// Weglot 翻译按钮 + 零延迟首屏大标题净化 + 跑马灯原生底部悬浮（完美保留回退特效）
 (function() {
-  // 1. 注入全屏无死角的强力降维打击 CSS
+  // ==================== 1. 首帧硬核 CSS 拦截（一出生就让大标题消失，让打字机呆在底部） ====================
   var ultimateStyle = document.createElement('style');
   ultimateStyle.innerHTML = `
-    /* 🎯 强制让首屏包裹区域变成弹性底部对齐，使所有子元素天然在底部展开 */
-    section.relative.w-full.h-screen,
-    .h-screen.relative,
-    main section:first-of-type {
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: flex-end !important;
-      align-items: center !important;
-      padding-bottom: 40px !important;
-    }
-
-    /* 🎯 彻底隐藏屏幕中间的 "Evan Space" 主标题（不管它用的是什么标签） */
-    h1 {
+    /* 🎯 零延迟消灭首屏中央大标题（不管什么状态，只要是首屏大标题一律不准显示） */
+    h1.text-4xl,
+    h1.font-bold,
+    header + div h1,
+    .hero-title,
+    div[class*="hero"] h1 {
       display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
     }
 
-    /* 🎯 彻底隐藏“心情随笔”卡片 */
-    a[href*="note"], div[class*="rounded"] {
-      /* 防止误伤，我们主要靠下面的 JS 精准查杀 */
+    /* 🎯 彻底消灭“心情随笔”卡片 */
+    div, a {
+      /* 后续由 JS 动态精准查杀 */
+    }
+
+    /* 🎯 核心：不搬运 DOM，直接用绝对定位将打字机及签名行在第一帧就锁死在底部，保护 Typed.js 回退特效 */
+    #typed {
+      /* 保持打字机内部样式正常 */
+    }
+    
+    /* 精准锁定打字机所在的行容器，直接钉在底部上方 */
+    .group.flex.flex-col.items-center,
+    div:has(> #typed) {
+      position: absolute !important;
+      bottom: 45px !important; /* 位于向下箭头上方，完美间距 */
+      left: 0 !important;
+      right: 0 !important;
+      margin: auto !important;
+      z-index: 999999 !important;
+      text-align: center !important;
+      width: 100% !important;
+      max-width: 900px !important;
     }
   `;
   document.head.appendChild(ultimateStyle);
@@ -72,20 +86,15 @@
     };
     document.body.appendChild(script);
 
-    // ==================== 3. 强力巡逻清道夫（秒杀大标题与心情随笔） ====================
+    // ==================== 3. 持续巡逻清道夫（查杀大标题与心情随笔） ====================
     setInterval(function() {
-      // 遍历所有元素，只要内容是 "Evan Space" 且出现在首屏中央，强制抹杀
+      // 暴力查杀任何漏网的 Evan Space 大标题
       var allElements = document.querySelectorAll('h1, h2, div, span');
       allElements.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === 'Evan Space' && el.children.length === 0) {
           var rect = el.getBoundingClientRect();
-          // 确保只干掉车头中间的那个大标题，不影响顶部导航
           if (rect.top > 50 && rect.top < 400) {
             el.style.setProperty('display', 'none', 'important');
-            var parent = el.closest('.flex') || el.parentElement;
-            if (parent && parent.innerText.includes('Evan Space')) {
-              parent.style.setProperty('display', 'none', 'important');
-            }
           }
         }
       });
@@ -104,5 +113,5 @@
       });
     }, 200);
 
-  }, 200);
+  }, 100);
 })();
