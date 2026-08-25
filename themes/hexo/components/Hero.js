@@ -1,5 +1,4 @@
 // import Image from 'next/image'
-import LazyImage from '@/components/LazyImage'
 import { siteConfig } from '@/lib/config'
 import { useGlobal } from '@/lib/global'
 import { loadExternalResource } from '@/lib/utils'
@@ -96,7 +95,7 @@ const Hero = props => {
       {/* 底部区域：欢迎语（在上）与滚动箭头（在下） */}
       <div className='text-white absolute bottom-8 left-0 right-0 flex flex-col items-center justify-end w-full z-10'>
         {/* 站点欢迎语 */}
-        . <div className='mb-6 h-10 items-center text-center font-light shadow-text text-base md:text-lg px-4'>
+        <div className='mb-6 h-10 items-center text-center font-light shadow-text text-base md:text-lg px-4'>
           <span id='typed' />
         </div>
 
@@ -112,9 +111,8 @@ const Hero = props => {
         </div>
       </div>
 
-      {/* 🎯 封面图：直接使用原生 img 标签加载 Notion 代理链接，彻底避开 LazyImage 懒加载导致的黑屏问题 */}
+      {/* 🎯 封面图：直接使用原生 img 标签加载 Notion 代理链接，彻底避开黑屏问题 */}
       <img
-        priority="true"
         id='header-cover'
         alt={siteInfo?.title || 'Cover'}
         src={currentCover || siteInfo?.pageCover}
