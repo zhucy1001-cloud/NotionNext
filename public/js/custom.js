@@ -1,4 +1,4 @@
-// 仅保留 Weglot 翻译按钮注入逻辑
+// Weglot 翻译按钮放置在搜索放大镜左侧
 (function() {
   setTimeout(function() {
     var script = document.createElement('script');
@@ -18,12 +18,15 @@
           var btnId = 'evan-lang-btn-' + index;
           if (document.getElementById(btnId)) return;
 
+          // 寻找搜索图标的包装容器
           var wrapper = icon.closest('.cursor-pointer') || icon.closest('a') || icon.closest('.search-button') || icon.parentNode;
           if (!wrapper || !wrapper.parentNode) return;
 
+          // 创建翻译按钮
           var langBtn = document.createElement('div');
           langBtn.id = btnId;
-          langBtn.style.cssText = 'cursor: pointer; margin: 0 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; opacity: 0.8; transition: opacity 0.3s; color: inherit; line-height: 1;';
+          // 调整间距：设置合适左右 margin，让它和放大镜以及旁边的元素保持优美的呼吸感
+          langBtn.style.cssText = 'cursor: pointer; margin: 0 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; opacity: 0.8; transition: opacity 0.3s; color: inherit; line-height: 1;';
           
           langBtn.onmouseover = function() { this.style.opacity = '1'; };
           langBtn.onmouseout = function() { this.style.opacity = '0.8'; };
@@ -39,7 +42,9 @@
           };
           
           Weglot.on('languageChanged', updateText);
-          wrapper.parentNode.insertBefore(langBtn, wrapper.nextSibling);
+          
+          // 🎯 核心改变：将翻译按钮插入到搜索包装容器的【前面】，即放大镜的左侧
+          wrapper.parentNode.insertBefore(langBtn, wrapper);
         });
       }, 1000); 
     };
