@@ -9,32 +9,49 @@ import NavButtonGroup from './NavButtonGroup'
 
 let wrapperTop = 0
 
-// 🎯 已为你填好来自你 GitHub 仓库的 5 张图片永久直链库
-const MY_COVER_GALLERY = [
-  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/main.jpeg',
-  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E6%A2%85%E5%A5%94.jpeg',
-  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E6%B3%95%E6%8B%89%E5%88%A9.jpeg',
-  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E7%BA%A2%E7%89%9B.jpeg',
-  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E8%BF%88%E5%87%AF%E8%BD%AE.jpeg'
-]
-
 /**
- * 顶部全屏大图
+ * 顶部全屏大图（支持从 Notion 指定相册页面动态提取图片）
  * @returns
  */
 const Hero = props => {
   const [typed, changeType] = useState()
-  const { siteInfo } = props
+  const { siteInfo, blockMap } = props
   const { locale } = useGlobal()
 
-  // 🎯 每次刷新时安全地随机抽出一张封面图
-const [currentCover] = useState(() => {
-  if (MY_COVER_GALLERY.length > 0) {
-    const randomIndex = Math.floor(Math.random() * MY_COVER_GALLERY.length)
-    return MY_COVER_GALLERY[randomIndex]
-  }
-  return siteInfo?.pageCover || ''
-})
+  // 🎯 动态获取封面图逻辑：
+  // 1. 优先尝试从当前 Notion 页面包含的图片中随机抽取
+  // 2. 如果没有，则降级使用 siteInfo?.pageCover
+  const [currentCover, setCurrentCover] = useState(() => {
+    try {
+      // 收集页面中所有的图片 URL (Notion 块中的图片)
+      const images = []
+      if (blockMap && blockMap.block) {
+        Object.values(blockMap.block).forEach(b => {
+          if (b.value && b.value.type === 'image') {
+            const src = b.value.properties?.source?.[0]?.[0] || b.value.format?.block_src
+            if (src) {
+              // 自动将 Notion 的内部图片转为代理加速链接
+              const imageUrl = src.startsWith('http') 
+                ? `https://www.notion.so/image/${encodeURIComponent(src)}?table=block&id=${b.value.id}&cache=v2`
+                : src
+              images.push(imageUrl)
+            }
+          }
+        })
+      }
+
+      // 如果在当前页面找到了图片，就随机选一张
+      if (images.length > 0) {
+        const randomIndex = Math.floor(Math.random() * images.length)
+        return images[randomIndex]
+      }
+    } catch (e) {
+      console.error('提取首页壁纸失败:', e)
+    }
+
+    // 默认降级封面
+    return siteInfo?.pageCover || ''
+  })
 
   const scrollToWrapper = () => {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -107,7 +124,7 @@ const [currentCover] = useState(() => {
         </div>
       </div>
 
-      {/* 🎯 封面图：使用 GitHub 永久直链随机展示 */}
+      {/* 🎯 封面图：自动从页面结构中提取并随机展示 */}
       <LazyImage
         priority
         id='header-cover'
@@ -115,7 +132,7 @@ const [currentCover] = useState(() => {
         src={currentCover || siteInfo?.pageCover}
         width={1920}
         height={1080}
-        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
+        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
       />
     </header>
   )
