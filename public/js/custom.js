@@ -1,4 +1,4 @@
-// Weglot 翻译按钮 + 跑马灯下沉到底部 + 隐藏主标题 终极完整版
+// Weglot 翻译按钮 + 跑马灯完美悬浮在箭头上方
 setTimeout(function() {
   // ==================== 1. Weglot 翻译按钮注入逻辑 ====================
   var script = document.createElement('script');
@@ -45,24 +45,15 @@ setTimeout(function() {
   };
   document.body.appendChild(script);
 
-  // ==================== 2. 隐藏主标题 + 跑马灯下沉到底部逻辑 ====================
+  // ==================== 2. 跑马灯位置微调（向上抬高至箭头正上方） ====================
   setInterval(function() {
-    // 隐藏首屏中间的 "Evan Space" 主标题（精准匹配页面中的大标题 h1）
-    var mainTitles = document.querySelectorAll('h1.text-4xl, h1.font-bold');
-    mainTitles.forEach(function(title) {
-      // 确保只隐藏首屏那个带有 "Evan Space" 的大标题
-      if (title.innerText && title.innerText.includes('Evan Space')) {
-        title.style.display = 'none';
-      }
-    });
-
-    // 将跑马灯文字独立下沉到底部
     var typedElem = document.getElementById('typed');
     if (typedElem) {
       var subContainer = typedElem.parentElement;
       if (subContainer && subContainer !== document.body) {
         subContainer.style.position = 'absolute';
-        subContainer.style.bottom = '80px'; // 距离底部高度，可按需微调
+        // 🌟 将 bottom 从 115px 调整为 135px，让文字往上挪一点，与箭头拉开完美间距
+        subContainer.style.bottom = '135px'; 
         subContainer.style.left = '0';
         subContainer.style.right = '0';
         subContainer.style.margin = 'auto';
