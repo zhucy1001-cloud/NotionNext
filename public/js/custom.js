@@ -5,7 +5,7 @@ setTimeout(function() {
     /* 调整跑马灯欢迎语的上下位置 */
     .group.flex.flex-col.items-center, /* 根据你的 Hexo 布局组件调整 */
     div:has(> #typed) {
-      margin-top: 1000px !important; /* 改成负数可以把它往上提，改成正数往下压 */
+      margin-top: 600px !important; /* 改成负数可以把它往上提，改成正数往下压 */
     }
   `;
   document.head.appendChild(style);
