@@ -1,4 +1,4 @@
-// Weglot 翻译按钮 + 暴力物理拔除大标题 + 跑马灯强行搬运至页面最底部
+// Weglot 翻译按钮 + 强力清除大标题与心情随笔 + 打字机单例不重置下沉版
 (function() {
   setTimeout(function() {
     // ==================== 1. Weglot 翻译按钮注入逻辑 ====================
@@ -46,27 +46,22 @@
     };
     document.body.appendChild(script);
 
-    // ==================== 2. 全局永久巡逻与物理改造 ====================
-    setInterval(function() {
-      // 🎯 任务 A：彻底干掉中央大标题
-      // 遍历所有 h1 或大号字体标签，只要内容是 "Evan Space" 且不在导航栏，直接隐藏
+    // ==================== 2. 页面元素清理与底部单次搬运（带单例锁） ====================
+    var hasMovedTyped = false; // 🔒 设立单例锁，确保跑马灯只被搬运一次，绝不重复触发打字机重置
+
+    var mainLoop = setInterval(function() {
+      // A. 持续清理中央大标题（防止 React 异步刷新重新吐出大标题）
       var allHeaders = document.querySelectorAll('h1, div, span');
       allHeaders.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === 'Evan Space' && el.children.length === 0) {
-          // 确保它是屏幕中央的那个大标题（排除左上角 logo）
           var rect = el.getBoundingClientRect();
           if (rect.top > 60 && rect.top < 300) {
             el.style.setProperty('display', 'none', 'important');
-            // 如果它有外层包裹卡片，顺便隐藏
-            var parentBox = el.closest('.flex.flex-col') || el.parentElement;
-            if (parentBox && parentBox.innerText.trim() === 'Evan Space') {
-              parentBox.style.setProperty('display', 'none', 'important');
-            }
           }
         }
       });
 
-      // 🎯 任务 B：干掉“心情随笔”卡片
+      // B. 持续清理“心情随笔”卡片
       var allDivs = document.querySelectorAll('div, a');
       allDivs.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === '心情随笔' && el.children.length < 3) {
@@ -79,26 +74,28 @@
         }
       });
 
-      // 🎯 任务 C：跑马灯物理强行搬运到底部（绝对不会闪烁或消失）
-      var typedElem = document.getElementById('typed');
-      if (typedElem) {
-        var subContainer = typedElem.parentElement;
-        if (subContainer && !subContainer.classList.contains('evan-relocated')) {
-          subContainer.classList.add('evan-relocated');
-          // 强制脱离原布局，直接锁死在屏幕底部正下方
-          subContainer.style.setProperty('position', 'fixed', 'important');
-          subContainer.style.setProperty('bottom', '15px', 'important');
-          subContainer.style.setProperty('left', '0', 'important');
-          subContainer.style.setProperty('right', '0', 'important');
-          subContainer.style.setProperty('margin', 'auto', 'important');
-          subContainer.style.setProperty('z-index', '999999', 'important');
-          subContainer.style.setProperty('text-align', 'center', 'important');
-          subContainer.style.setProperty('width', '100%', 'important');
-          subContainer.style.setProperty('max-width', '900px', 'important');
-          subContainer.style.setProperty('pointer-events', 'auto', 'important');
+      // C. 跑马灯只在第一次抓到时搬运到底部，之后再也不动它，保护打字机连贯性！
+      if (!hasMovedTyped) {
+        var typedElem = document.getElementById('typed');
+        if (typedElem) {
+          var subContainer = typedElem.parentElement;
+          if (subContainer) {
+            subContainer.style.setProperty('position', 'fixed', 'important');
+            subContainer.style.setProperty('bottom', '15px', 'important');
+            subContainer.style.setProperty('left', '0', 'important');
+            subContainer.style.setProperty('right', '0', 'important');
+            subContainer.style.setProperty('margin', 'auto', 'important');
+            subContainer.style.setProperty('z-index', '999999', 'important');
+            subContainer.style.setProperty('text-align', 'center', 'important');
+            subContainer.style.setProperty('width', '100%', 'important');
+            subContainer.style.setProperty('max-width', '900px', 'important');
+            
+            hasMovedTyped = true; // 🔒 锁定成功！从此打字机可以安安心心一口气把字打完
+          }
         }
       }
-    }, 100); // 0.1秒极速巡逻
+
+    }, 200);
 
   }, 300);
 })();
