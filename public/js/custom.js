@@ -1,3 +1,16 @@
+// 在 custom.js 里追加这段样式控制代码
+setTimeout(function() {
+  var style = document.createElement('style');
+  style.innerHTML = `
+    /* 调整跑马灯欢迎语的上下位置 */
+    .group.flex.flex-col.items-center, /* 根据你的 Hexo 布局组件调整 */
+    div:has(> #typed) {
+      margin-top: 200px !important; /* 改成负数可以把它往上提，改成正数往下压 */
+    }
+  `;
+  document.head.appendChild(style);
+}, 1000);
+
 // Weglot 终极分身术版：完美间距微调
 setTimeout(function() {
   var script = document.createElement('script');
