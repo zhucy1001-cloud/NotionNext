@@ -1,7 +1,42 @@
-// Weglot 翻译按钮 + 强力清除大标题与心情随笔 + 打字机单例不重置下沉版
+// Weglot 翻译按钮 + 彻底消灭大标题与心情随笔 + 纯CSS原生底部悬浮（不破坏打字机生命周期）
 (function() {
+  // 1. 在页面加载的最早期，直接用全局 CSS 把打字机容器和它的父级祖先在视觉上“钉”在底部
+  var nativeStyle = document.createElement('style');
+  nativeStyle.innerHTML = `
+    /* 彻底隐藏中央大标题 */
+    h1, .hero-title {
+      display: none !important;
+    }
+
+    /* 彻底隐藏心情随笔卡片 */
+    div, a {
+      /* 针对特定文字卡片的精准隐藏 */
+    }
+
+    /* 🎯 核心：不移动 DOM 结构，直接用 CSS 固定定位将打字机锁死在底部，防止 Typed.js 触发重置 */
+    #typed {
+      /* 保持打字机自身属性正常 */
+    }
+    
+    /* 寻找打字机所在的父级容器，直接在视觉上压到底部 */
+    .group.flex.flex-col, 
+    div:has(> #typed) {
+      position: fixed !important;
+      bottom: 15px !important;
+      left: 0 !important;
+      right: 0 !important;
+      margin: auto !important;
+      z-index: 999999 !important;
+      text-align: center !important;
+      width: 100% !important;
+      max-width: 900px !important;
+      pointer-events: auto !important;
+    }
+  `;
+  document.head.appendChild(nativeStyle);
+
   setTimeout(function() {
-    // ==================== 1. Weglot 翻译按钮注入逻辑 ====================
+    // ==================== 2. Weglot 翻译按钮注入逻辑 ====================
     var script = document.createElement('script');
     script.src = "https://cdn.weglot.com/weglot.min.js";
     
@@ -46,11 +81,9 @@
     };
     document.body.appendChild(script);
 
-    // ==================== 2. 页面元素清理与底部单次搬运（带单例锁） ====================
-    var hasMovedTyped = false; // 🔒 设立单例锁，确保跑马灯只被搬运一次，绝不重复触发打字机重置
-
-    var mainLoop = setInterval(function() {
-      // A. 持续清理中央大标题（防止 React 异步刷新重新吐出大标题）
+    // ==================== 3. 动态查杀巡逻（大标题 + 心情随笔） ====================
+    setInterval(function() {
+      // 持续清理大标题
       var allHeaders = document.querySelectorAll('h1, div, span');
       allHeaders.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === 'Evan Space' && el.children.length === 0) {
@@ -61,7 +94,7 @@
         }
       });
 
-      // B. 持续清理“心情随笔”卡片
+      // 持续清理“心情随笔”
       var allDivs = document.querySelectorAll('div, a');
       allDivs.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === '心情随笔' && el.children.length < 3) {
@@ -73,29 +106,7 @@
           }
         }
       });
+    }, 300);
 
-      // C. 跑马灯只在第一次抓到时搬运到底部，之后再也不动它，保护打字机连贯性！
-      if (!hasMovedTyped) {
-        var typedElem = document.getElementById('typed');
-        if (typedElem) {
-          var subContainer = typedElem.parentElement;
-          if (subContainer) {
-            subContainer.style.setProperty('position', 'fixed', 'important');
-            subContainer.style.setProperty('bottom', '15px', 'important');
-            subContainer.style.setProperty('left', '0', 'important');
-            subContainer.style.setProperty('right', '0', 'important');
-            subContainer.style.setProperty('margin', 'auto', 'important');
-            subContainer.style.setProperty('z-index', '999999', 'important');
-            subContainer.style.setProperty('text-align', 'center', 'important');
-            subContainer.style.setProperty('width', '100%', 'important');
-            subContainer.style.setProperty('max-width', '900px', 'important');
-            
-            hasMovedTyped = true; // 🔒 锁定成功！从此打字机可以安安心心一口气把字打完
-          }
-        }
-      }
-
-    }, 200);
-
-  }, 300);
+  }, 200);
 })();
