@@ -9,49 +9,60 @@ import NavButtonGroup from './NavButtonGroup'
 
 let wrapperTop = 0
 
-/**
- * 顶部全屏大图（支持从 Notion 指定相册页面动态提取图片）
- * @returns
- */
 const Hero = props => {
   const [typed, changeType] = useState()
-  const { siteInfo, blockMap } = props
+  const { siteInfo } = props
   const { locale } = useGlobal()
 
-  // 🎯 动态获取封面图逻辑：
-  // 1. 优先尝试从当前 Notion 页面包含的图片中随机抽取
-  // 2. 如果没有，则降级使用 siteInfo?.pageCover
-  const [currentCover, setCurrentCover] = useState(() => {
-    try {
-      // 收集页面中所有的图片 URL (Notion 块中的图片)
-      const images = []
-      if (blockMap && blockMap.block) {
-        Object.values(blockMap.block).forEach(b => {
-          if (b.value && b.value.type === 'image') {
-            const src = b.value.properties?.source?.[0]?.[0] || b.value.format?.block_src
-            if (src) {
-              // 自动将 Notion 的内部图片转为代理加速链接
-              const imageUrl = src.startsWith('http') 
-                ? `https://www.notion.so/image/${encodeURIComponent(src)}?table=block&id=${b.value.id}&cache=v2`
-                : src
-              images.push(imageUrl)
+  // 1. 默认先使用博客配置的封面（防止网页刚打开时背景是黑的）
+  const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
+
+  // 🎯 2. 核心魔法：自动扫描 GitHub 文件夹里的图片
+  useEffect(() => {
+    const fetchGithubImages = async () => {
+      const cacheKey = 'github_wallpapers'
+      const cacheTimeKey = 'github_wallpapers_time'
+      const cached = localStorage.getItem(cacheKey)
+      const cacheTime = localStorage.getItem(cacheTimeKey)
+      const now = Date.now()
+
+      let images = []
+
+      // 为了加载更快并防止被 GitHub 限制，如果 1 小时内已经扫描过，就直接用本地记录
+      if (cached && cacheTime && (now - parseInt(cacheTime) < 3600000)) {
+        images = JSON.parse(cached)
+      } else {
+        try {
+          // 自动获取你在 GitHub 的 MyImage/top 文件夹下的所有文件列表
+          const res = await fetch('https://api.github.com/repos/zhucy1001-cloud/NotionNext/contents/MyImage/top')
+          const data = await res.json()
+          
+          if (Array.isArray(data)) {
+            // 自动筛选出所有的图片文件 (支持 jpeg, jpg, png, gif, webp)
+            images = data
+              .filter(file => file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif|webp)$/i))
+              .map(file => file.download_url)
+            
+            // 把扫到的图片列表存起来
+            if (images.length > 0) {
+              localStorage.setItem(cacheKey, JSON.stringify(images))
+              localStorage.setItem(cacheTimeKey, now.toString())
             }
           }
-        })
+        } catch (error) {
+          console.error('自动扫描 GitHub 图片失败:', error)
+        }
       }
 
-      // 如果在当前页面找到了图片，就随机选一张
+      // 3. 从扫到的图片中随机抽选一张，替换当前背景！
       if (images.length > 0) {
         const randomIndex = Math.floor(Math.random() * images.length)
-        return images[randomIndex]
+        setCurrentCover(images[randomIndex])
       }
-    } catch (e) {
-      console.error('提取首页壁纸失败:', e)
     }
 
-    // 默认降级封面
-    return siteInfo?.pageCover || ''
-  })
+    fetchGithubImages()
+  }, [])
 
   const scrollToWrapper = () => {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -64,7 +75,6 @@ const Hero = props => {
   
   useEffect(() => {
     updateHeaderHeight()
-
     if (!typed && window && document.getElementById('typed')) {
       loadExternalResource('/js/typed.min.js', 'js').then(() => {
         if (window.Typed) {
@@ -81,7 +91,6 @@ const Hero = props => {
         }
       })
     }
-
     window.addEventListener('resize', updateHeaderHeight)
     return () => {
       window.removeEventListener('resize', updateHeaderHeight)
@@ -96,43 +105,29 @@ const Hero = props => {
   }
 
   return (
-    <header
-      id='header'
-      style={{ zIndex: 1 }}
-      className='w-full h-screen relative bg-black'>
+    <header id='header' style={{ zIndex: 1 }} className='w-full h-screen relative bg-black'>
       <div className='text-white absolute bottom-0 flex flex-col h-full items-center justify-end w-full '>
-        {/* 站点标题 */}
-        {/* 站点欢迎语 */}
         <div className='mt-2 h-12 items-center text-center font-light shadow-text text-lg'>
           <span id='typed' />
         </div>
-
-        {/* 首页导航大按钮 */}
         {siteConfig('HEXO_HOME_NAV_BUTTONS', null, CONFIG) && (
           <NavButtonGroup {...props} />
         )}
-
-        {/* 滚动按钮 */}
-        <div
-          onClick={scrollToWrapper}
-          className='z-10 cursor-pointer w-full text-center py-4 text-3xl absolute bottom-10 text-white [text-shadow:0_0_0.1em_black,0_0_0.2em_black]'>
+        <div onClick={scrollToWrapper} className='z-10 cursor-pointer w-full text-center py-4 text-3xl absolute bottom-10 text-white [text-shadow:0_0_0.1em_black,0_0_0.2em_black]'>
           <div className='opacity-70 animate-bounce text-xs'>  
-            {siteConfig('HEXO_SHOW_START_READING', null, CONFIG) &&
-              locale.COMMON.START_READING}
+            {siteConfig('HEXO_SHOW_START_READING', null, CONFIG) && locale.COMMON.START_READING}
           </div>
           <i className='opacity-70 animate-bounce fas fa-angle-down' />
         </div>
       </div>
-
-      {/* 🎯 封面图：自动从页面结构中提取并随机展示 */}
       <LazyImage
         priority
         id='header-cover'
         alt={siteInfo?.title}
-        src={currentCover || siteInfo?.pageCover}
+        src={currentCover}
         width={1920}
         height={1080}
-        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
+        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
       />
     </header>
   )
