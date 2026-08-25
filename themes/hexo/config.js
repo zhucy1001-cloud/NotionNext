@@ -50,6 +50,5 @@ const CONFIG = {
     
 // 🎯【新增】配置你的 Notion 首页壁纸/相册页面 ID
   HOME_COVER_PAGE_ID: '3c77dce66b89809f889dfdebb674a616'
-  
 }
 export default CONFIG
