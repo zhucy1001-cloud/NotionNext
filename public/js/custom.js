@@ -1,21 +1,30 @@
-// Weglot 翻译按钮 + 彻底隐藏大标题与心情随笔 + 原生底部流式布局（完美保留打字机回退效果）
+// Weglot 翻译按钮 + 全局首屏容器强行沉底 + 彻底净化大标题与心情随笔
 (function() {
-  // 1. 全局样式：隐藏大标题、心情随笔卡片，并调整首屏容器让打字机天然处于底部
-  var nativeStyle = document.createElement('style');
-  nativeStyle.innerHTML = `
-    /* 🎯 彻底隐藏中央大标题 */
-    h1, .hero-title {
+  // 1. 注入全屏无死角的强力降维打击 CSS
+  var ultimateStyle = document.createElement('style');
+  ultimateStyle.innerHTML = `
+    /* 🎯 强制让首屏包裹区域变成弹性底部对齐，使所有子元素天然在底部展开 */
+    section.relative.w-full.h-screen,
+    .h-screen.relative,
+    main section:first-of-type {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-end !important;
+      align-items: center !important;
+      padding-bottom: 40px !important;
+    }
+
+    /* 🎯 彻底隐藏屏幕中间的 "Evan Space" 主标题（不管它用的是什么标签） */
+    h1 {
       display: none !important;
     }
 
-    /* 🎯 让首屏 Hero 区域的内部元素向下对齐，使跑马灯自然沉底，不破坏打字机生命周期 */
-    .group.flex.flex-col {
-      justify-content: flex-end !important;
-      padding-bottom: 25px !important;
-      min-height: 85vh !important; /* 确保占据大半个首屏高度，让底部空间完美展开 */
+    /* 🎯 彻底隐藏“心情随笔”卡片 */
+    a[href*="note"], div[class*="rounded"] {
+      /* 防止误伤，我们主要靠下面的 JS 精准查杀 */
     }
   `;
-  document.head.appendChild(nativeStyle);
+  document.head.appendChild(ultimateStyle);
 
   setTimeout(function() {
     // ==================== 2. Weglot 翻译按钮注入逻辑 ====================
@@ -63,18 +72,25 @@
     };
     document.body.appendChild(script);
 
-    // ==================== 3. 持续清理大标题与心情随笔 ====================
+    // ==================== 3. 强力巡逻清道夫（秒杀大标题与心情随笔） ====================
     setInterval(function() {
-      var allHeaders = document.querySelectorAll('h1, div, span');
-      allHeaders.forEach(function-remove(el) {
+      // 遍历所有元素，只要内容是 "Evan Space" 且出现在首屏中央，强制抹杀
+      var allElements = document.querySelectorAll('h1, h2, div, span');
+      allElements.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === 'Evan Space' && el.children.length === 0) {
           var rect = el.getBoundingClientRect();
-          if (rect.top > 60 && rect.top < 300) {
+          // 确保只干掉车头中间的那个大标题，不影响顶部导航
+          if (rect.top > 50 && rect.top < 400) {
             el.style.setProperty('display', 'none', 'important');
+            var parent = el.closest('.flex') || el.parentElement;
+            if (parent && parent.innerText.includes('Evan Space')) {
+              parent.style.setProperty('display', 'none', 'important');
+            }
           }
         }
       });
 
+      // 强力查杀“心情随笔”卡片
       var allDivs = document.querySelectorAll('div, a');
       allDivs.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === '心情随笔' && el.children.length < 3) {
@@ -86,7 +102,7 @@
           }
         }
       });
-    }, 300);
+    }, 200);
 
   }, 200);
 })();
