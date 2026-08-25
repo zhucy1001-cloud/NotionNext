@@ -1,4 +1,4 @@
-// Weglot Hexo 导航栏终极暴力注入版
+// Weglot Hexo 导航栏间距与视觉优化版
 setTimeout(function() {
   var script = document.createElement('script');
   script.src = "https://cdn.weglot.com/weglot.min.js";
@@ -10,23 +10,27 @@ setTimeout(function() {
     });
     
     function forceInject() {
-      // 1. 如果已经存在，直接返回成功
       if (document.getElementById('evan-lang-btn')) return true;
       
-      // 2. 扩大火力覆盖范围：直接抓取整个右侧导航容器
       var navRight = document.querySelector('.nav-right') || 
                      document.querySelector('#nav-right') || 
                      document.querySelector('.menus_items') || 
                      document.querySelector('#menus') ||
                      document.querySelector('nav');
                      
-      if (!navRight) return false; // 没找到容器，说明网页还没渲染完，继续等
+      if (!navRight) return false; 
       
-      // 3. 创建极简按钮
       var langBtn = document.createElement('a');
       langBtn.id = 'evan-lang-btn';
-      // 使用最高级别的显示权重，防止被其他样式隐藏
-      langBtn.style.cssText = 'cursor: pointer; margin-left: 15px; font-weight: bold; font-size: 15px; z-index: 99999; display: inline-block !important; visibility: visible !important; color: inherit;';
+      
+      // 🌟 关键修改在这里：
+      // margin: 0 20px; 代表上下边距为0，左右边距各 20px，完美撑开它和放大镜的距离！
+      // 加入了 opacity: 0.8 和 transition，让它平时微微透明，鼠标放上去变亮，更有质感。
+      langBtn.style.cssText = 'cursor: pointer; margin: 0 20px; font-weight: bold; font-size: 15px; z-index: 99999; display: inline-block !important; visibility: visible !important; color: inherit; opacity: 0.8; transition: opacity 0.3s ease;';
+      
+      // 增加鼠标悬停效果
+      langBtn.onmouseover = function() { this.style.opacity = '1'; };
+      langBtn.onmouseout = function() { this.style.opacity = '0.8'; };
       
       function updateText() {
         langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中文';
@@ -40,21 +44,19 @@ setTimeout(function() {
       
       Weglot.on('languageChanged', updateText);
       
-      // 4. 暴力追加到右侧导航栏的最后面
       navRight.appendChild(langBtn);
-      console.log("✅ 报告站长：EN 按钮已强行突破防线，成功空降导航栏！");
+      console.log("✅ 报告站长：EN 按钮间距已完美优化！");
       return true;
     }
     
-    // 5. 启动疯狂轮询模式：每 0.5 秒攻击一次，直到注入成功，最多尝试 20 次 (10秒)
     var attempts = 0;
     var timer = setInterval(function() {
       if (forceInject() || attempts > 20) {
-        clearInterval(timer); // 成功或者超时，就停止轮询
+        clearInterval(timer);
       }
       attempts++;
     }, 500);
   };
   
   document.body.appendChild(script);
-}, 1000); // 整体延迟 1 秒，避开 React 首次渲染高峰
+}, 1000);
