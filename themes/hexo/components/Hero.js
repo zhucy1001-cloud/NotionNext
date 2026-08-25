@@ -8,7 +8,7 @@ import NavButtonGroup from './NavButtonGroup'
 
 let wrapperTop = 0
 
-// 🎯 把 5 张图片数组放在组件外面，确保每次加载时能直接稳定获取
+// 🎯 把 5 张图片数组放在外面
 const MY_COVER_GALLERY = [
   'https://app.notion.com/image/attachment%3A9af83a15-f95d-4d17-ab37-746d4e0fba2c%3A%E7%BA%A2%E7%89%9B.jpeg?table=block&id=3c77dce6-6b89-8077-9365-c392b8b7e781&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
   'https://app.notion.com/image/attachment%3A147b10e0-b385-4cbd-8b3a-4b9ef800bbf7%3A%E6%B3%95%E6%8B%89%E5%88%A9.jpeg?table=block&id=3c77dce6-6b89-801b-bf71-c6658a7f6c1f&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
@@ -16,12 +16,6 @@ const MY_COVER_GALLERY = [
   'https://app.notion.com/image/attachment%3A71a22a38-f120-421c-9e42-3fcb6128b16e%3A%E8%BF%88%E5%87%AF%E8%BD%AE.jpeg?table=block&id=3c77dce6-6b89-80fe-bc14-df4f01d10cb7&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
   'https://app.notion.com/image/attachment%3A61f43692-1f7c-4c2d-9bfe-5a93041cbbc9%3Amain.jpeg?table=block&id=3c77dce6-6b89-80f1-b856-cbce5f7ef0c6&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl'
 ]
-
-// 🎯 在组件加载前直接随机抽取一张，避免异步 state 导致的闪烁或黑屏
-const getRandomCover = () => {
-  const randomIndex = Math.floor(Math.random() * MY_COVER_GALLERY.length)
-  return MY_COVER_GALLERY[randomIndex]
-}
 
 /**
  * 顶部全屏大图
@@ -32,8 +26,15 @@ const Hero = props => {
   const { siteInfo } = props
   const { locale } = useGlobal()
   
-  // 初始化时直接定死当前页面的封面，防止异步渲染冲突
-  const [currentCover] = useState(() => getRandomCover())
+  // 🎯 改用标准的 useEffect 在客户端挂载后安全地随机挑选一张图片，防止 SSR 阶段不匹配
+  const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
+
+  useEffect(() => {
+    if (MY_COVER_GALLERY.length > 0) {
+      const randomIndex = Math.floor(Math.random() * MY_COVER_GALLERY.length)
+      setCurrentCover(MY_COVER_GALLERY[randomIndex])
+    }
+  }, [])
 
   const scrollToWrapper = () => {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -111,12 +112,12 @@ const Hero = props => {
         </div>
       </div>
 
-      {/* 🎯 封面图：直接使用原生 img 标签加载 Notion 代理链接，彻底避开黑屏问题 */}
+      {/* 🎯 封面图：使用带兜底的稳定 img 标签，初始展示 Notion 原生封面，挂载后无缝切换成随机图 */}
       <img
         id='header-cover'
         alt={siteInfo?.title || 'Cover'}
         src={currentCover || siteInfo?.pageCover}
-        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
+        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
       />
     </header>
   )
