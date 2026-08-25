@@ -8,13 +8,13 @@ import NavButtonGroup from './NavButtonGroup'
 
 let wrapperTop = 0
 
-// 🎯 把 5 张图片数组放在外面
+// 🎯 使用公开稳定的高质量赛车图片直链（你可以随时换成你自己的公开图床链接）
 const MY_COVER_GALLERY = [
-  'https://app.notion.com/image/attachment%3A9af83a15-f95d-4d17-ab37-746d4e0fba2c%3A%E7%BA%A2%E7%89%9B.jpeg?table=block&id=3c77dce6-6b89-8077-9365-c392b8b7e781&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
-  'https://app.notion.com/image/attachment%3A147b10e0-b385-4cbd-8b3a-4b9ef800bbf7%3A%E6%B3%95%E6%8B%89%E5%88%A9.jpeg?table=block&id=3c77dce6-6b89-801b-bf71-c6658a7f6c1f&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
-  'https://app.notion.com/image/attachment%3A2c37bb44-0f2a-4170-9c09-802bb3dd275b%3A%E6%A2%85%E5%A5%94.jpeg?table=block&id=3c77dce6-6b89-8023-8825-d55e902686e4&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
-  'https://app.notion.com/image/attachment%3A71a22a38-f120-421c-9e42-3fcb6128b16e%3A%E8%BF%88%E5%87%AF%E8%BD%AE.jpeg?table=block&id=3c77dce6-6b89-80fe-bc14-df4f01d10cb7&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl',
-  'https://app.notion.com/image/attachment%3A61f43692-1f7c-4c2d-9bfe-5a93041cbbc9%3Amain.jpeg?table=block&id=3c77dce6-6b89-80f1-b856-cbce5f7ef0c6&spaceId=0d47dce6-6b89-812f-b304-0003dabc6200&width=2000&userId=3c4d872b-594c-810d-b8a9-0002e126da87&cache=v2&imgBuildSrc=requestProxiedImageUrl'
+  'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7',
+  'https://images.unsplash.com/photo-1503376780353-7e6692767b70',
+  'https://images.unsplash.com/photo-1558981403-c5f9899a28bc',
+  'https://images.unsplash.com/photo-1511919884226-fd3cad34687c',
+  'https://images.unsplash.com/photo-1502877338535-766e1452684a'
 ]
 
 /**
@@ -26,7 +26,6 @@ const Hero = props => {
   const { siteInfo } = props
   const { locale } = useGlobal()
   
-  // 🎯 改用标准的 useEffect 在客户端挂载后安全地随机挑选一张图片，防止 SSR 阶段不匹配
   const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
 
   useEffect(() => {
@@ -112,7 +111,7 @@ const Hero = props => {
         </div>
       </div>
 
-      {/* 🎯 封面图：使用带兜底的稳定 img 标签，初始展示 Notion 原生封面，挂载后无缝切换成随机图 */}
+      {/* 封面图 */}
       <img
         id='header-cover'
         alt={siteInfo?.title || 'Cover'}
