@@ -1,4 +1,5 @@
 // import Image from 'next/image'
+import LazyImage from '@/components/LazyImage'
 import { siteConfig } from '@/lib/config'
 import { useGlobal } from '@/lib/global'
 import { loadExternalResource } from '@/lib/utils'
@@ -8,13 +9,13 @@ import NavButtonGroup from './NavButtonGroup'
 
 let wrapperTop = 0
 
-// 🎯 使用公开稳定的高质量赛车图片直链（你可以随时换成你自己的公开图床链接）
+// 🎯 已为你填好来自你 GitHub 仓库的 5 张图片永久直链库
 const MY_COVER_GALLERY = [
-  'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7',
-  'https://images.unsplash.com/photo-1503376780353-7e6692767b70',
-  'https://images.unsplash.com/photo-1558981403-c5f9899a28bc',
-  'https://images.unsplash.com/photo-1511919884226-fd3cad34687c',
-  'https://images.unsplash.com/photo-1502877338535-766e1452684a'
+  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/main.jpeg',
+  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E6%A2%85%E5%A5%94.jpeg',
+  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E6%B3%95%E6%8B%89%E5%88%A9.jpeg',
+  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E7%BA%A2%E7%89%9B.jpeg',
+  'https://raw.githubusercontent.com/zhucy1001-cloud/NotionNext/refs/heads/main/MyImage/%E8%BF%88%E5%87%AF%E8%BD%AE.jpeg'
 ]
 
 /**
@@ -25,7 +26,8 @@ const Hero = props => {
   const [typed, changeType] = useState()
   const { siteInfo } = props
   const { locale } = useGlobal()
-  
+
+  // 🎯 每次刷新时安全地随机抽出一张封面图
   const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
 
   useEffect(() => {
@@ -82,28 +84,23 @@ const Hero = props => {
       id='header'
       style={{ zIndex: 1 }}
       className='w-full h-screen relative bg-black'>
-      
-      {/* 中间导航大按钮区域 */}
-      <div className='text-white absolute inset-0 flex flex-col items-center justify-center w-full pointer-events-none'>
-        {siteConfig('HEXO_HOME_NAV_BUTTONS', null, CONFIG) && (
-          <div className="pointer-events-auto">
-            <NavButtonGroup {...props} />
-          </div>
-        )}
-      </div>
-
-      {/* 底部区域：欢迎语（在上）与滚动箭头（在下） */}
-      <div className='text-white absolute bottom-8 left-0 right-0 flex flex-col items-center justify-end w-full z-10'>
+      <div className='text-white absolute bottom-0 flex flex-col h-full items-center justify-end w-full '>
+        {/* 站点标题 */}
         {/* 站点欢迎语 */}
-        <div className='mb-6 h-10 items-center text-center font-light shadow-text text-base md:text-lg px-4'>
+        <div className='mt-2 h-12 items-center text-center font-light shadow-text text-lg'>
           <span id='typed' />
         </div>
+
+        {/* 首页导航大按钮 */}
+        {siteConfig('HEXO_HOME_NAV_BUTTONS', null, CONFIG) && (
+          <NavButtonGroup {...props} />
+        )}
 
         {/* 滚动按钮 */}
         <div
           onClick={scrollToWrapper}
-          className='cursor-pointer text-center text-2xl text-white [text-shadow:0_0_0.1em_black,0_0_0.2em_black]'>
-          <div className='opacity-70 animate-bounce text-xs mb-1'>  
+          className='z-10 cursor-pointer w-full text-center py-4 text-3xl absolute bottom-10 text-white [text-shadow:0_0_0.1em_black,0_0_0.2em_black]'>
+          <div className='opacity-70 animate-bounce text-xs'>  
             {siteConfig('HEXO_SHOW_START_READING', null, CONFIG) &&
               locale.COMMON.START_READING}
           </div>
@@ -111,11 +108,14 @@ const Hero = props => {
         </div>
       </div>
 
-      {/* 封面图 */}
-      <img
+      {/* 🎯 封面图：使用 GitHub 永久直链随机展示 */}
+      <LazyImage
+        priority
         id='header-cover'
-        alt={siteInfo?.title || 'Cover'}
+        alt={siteInfo?.title}
         src={currentCover || siteInfo?.pageCover}
+        width={1920}
+        height={1080}
         className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
       />
     </header>
