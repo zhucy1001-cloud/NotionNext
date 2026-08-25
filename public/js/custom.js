@@ -1,36 +1,18 @@
-// Weglot 翻译按钮 + 彻底消灭大标题与心情随笔 + 纯CSS原生底部悬浮（不破坏打字机生命周期）
+// Weglot 翻译按钮 + 彻底隐藏大标题与心情随笔 + 原生底部流式布局（完美保留打字机回退效果）
 (function() {
-  // 1. 在页面加载的最早期，直接用全局 CSS 把打字机容器和它的父级祖先在视觉上“钉”在底部
+  // 1. 全局样式：隐藏大标题、心情随笔卡片，并调整首屏容器让打字机天然处于底部
   var nativeStyle = document.createElement('style');
   nativeStyle.innerHTML = `
-    /* 彻底隐藏中央大标题 */
+    /* 🎯 彻底隐藏中央大标题 */
     h1, .hero-title {
       display: none !important;
     }
 
-    /* 彻底隐藏心情随笔卡片 */
-    div, a {
-      /* 针对特定文字卡片的精准隐藏 */
-    }
-
-    /* 🎯 核心：不移动 DOM 结构，直接用 CSS 固定定位将打字机锁死在底部，防止 Typed.js 触发重置 */
-    #typed {
-      /* 保持打字机自身属性正常 */
-    }
-    
-    /* 寻找打字机所在的父级容器，直接在视觉上压到底部 */
-    .group.flex.flex-col, 
-    div:has(> #typed) {
-      position: fixed !important;
-      bottom: 15px !important;
-      left: 0 !important;
-      right: 0 !important;
-      margin: auto !important;
-      z-index: 999999 !important;
-      text-align: center !important;
-      width: 100% !important;
-      max-width: 900px !important;
-      pointer-events: auto !important;
+    /* 🎯 让首屏 Hero 区域的内部元素向下对齐，使跑马灯自然沉底，不破坏打字机生命周期 */
+    .group.flex.flex-col {
+      justify-content: flex-end !important;
+      padding-bottom: 25px !important;
+      min-height: 85vh !important; /* 确保占据大半个首屏高度，让底部空间完美展开 */
     }
   `;
   document.head.appendChild(nativeStyle);
@@ -81,11 +63,10 @@
     };
     document.body.appendChild(script);
 
-    // ==================== 3. 动态查杀巡逻（大标题 + 心情随笔） ====================
+    // ==================== 3. 持续清理大标题与心情随笔 ====================
     setInterval(function() {
-      // 持续清理大标题
       var allHeaders = document.querySelectorAll('h1, div, span');
-      allHeaders.forEach(function(el) {
+      allHeaders.forEach(function-remove(el) {
         if (el.innerText && el.innerText.trim() === 'Evan Space' && el.children.length === 0) {
           var rect = el.getBoundingClientRect();
           if (rect.top > 60 && rect.top < 300) {
@@ -94,7 +75,6 @@
         }
       });
 
-      // 持续清理“心情随笔”
       var allDivs = document.querySelectorAll('div, a');
       allDivs.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === '心情随笔' && el.children.length < 3) {
