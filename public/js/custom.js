@@ -1,4 +1,4 @@
-// Weglot Hexo - React 基因锁守卫版 (MutationObserver 终极杀器)
+// Weglot 终极脱壳悬浮版 (完全无视 React 和主题结构)
 setTimeout(function() {
   var script = document.createElement('script');
   script.src = "https://cdn.weglot.com/weglot.min.js";
@@ -6,78 +6,45 @@ setTimeout(function() {
   script.onload = function() {
     Weglot.initialize({
         api_key: 'wg_09e141cacea940b6432fab178adc79f15',
-        hide_switcher: true
+        hide_switcher: true // 关闭官方默认挂件
     });
     
-    // 制作一个精致的独立按钮（带磨砂玻璃质感，放哪都好看）
-    function createLangBtn() {
-      var btn = document.createElement('a');
-      btn.id = 'evan-lang-btn';
-      btn.style.cssText = 'cursor: pointer; margin: 0 10px; padding: 4px 10px; border-radius: 6px; background: rgba(128,128,128,0.15); font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; z-index: 99999; color: inherit; text-decoration: none; backdrop-filter: blur(4px); transition: all 0.3s;';
-      
-      btn.onmouseover = function() { this.style.background = 'rgba(128,128,128,0.3)'; };
-      btn.onmouseout = function() { this.style.background = 'rgba(128,128,128,0.15)'; };
-      
-      btn.onclick = function(e) {
-        e.preventDefault(); e.stopPropagation();
+    // 如果已经存在，就不重复创建
+    if (document.getElementById('evan-absolute-lang')) return;
+
+    // 创建一个完全独立的悬浮按钮
+    var langBtn = document.createElement('div');
+    langBtn.id = 'evan-absolute-lang';
+    
+    // 🌟 终极魔法：使用 fixed 绝对定位
+    // top: 16px; right: 75px; 会让它死死钉在屏幕右上角（大概在放大镜和汉堡菜单的左边）
+    // 加上了高斯模糊和微透明背景，哪怕背景是白底黑底还是跑车图片，都能看得很清楚！
+    langBtn.style.cssText = 'position: fixed; top: 16px; right: 75px; z-index: 2147483647; cursor: pointer; color: #ffffff; font-weight: bold; font-size: 14px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.25); padding: 5px 10px; border-radius: 6px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: background 0.3s;';
+    
+    // 悬停效果
+    langBtn.onmouseover = function() { this.style.background = 'rgba(0,0,0,0.5)'; };
+    langBtn.onmouseout = function() { this.style.background = 'rgba(0,0,0,0.25)'; };
+    
+    // 更新文字
+    function updateText() {
+        langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中文';
+    }
+    updateText();
+    
+    // 点击切换语言
+    langBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         Weglot.switchTo(Weglot.getCurrentLang() === 'zh' ? 'en' : 'zh');
-      };
-      return btn;
-    }
-
-    function updateBtnText() {
-      var btn = document.getElementById('evan-lang-btn');
-      if (btn) btn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中文';
-    }
-
-    // 暴力注入逻辑
-    function forceInject() {
-      if (document.getElementById('evan-lang-btn')) {
-          updateBtnText();
-          return;
-      }
-
-      // 1. 寻找顶栏容器
-      var header = document.querySelector('#nav') || document.querySelector('header') || document.querySelector('#top-nav') || document.querySelector('.top-nav');
-      if (!header) return;
-
-      // 2. 广泛捕获右侧的任何图标（搜索、月亮/太阳、甚至是手机端的汉堡菜单）
-      var anyIcon = header.querySelector('.fa-search') || 
-                    header.querySelector('.search') || 
-                    header.querySelector('.fa-moon') || 
-                    header.querySelector('.fa-bars') || 
-                    header.querySelector('svg');
-
-      if (anyIcon) {
-          // 找到图标的可点击父级
-          var targetNode = anyIcon.closest('div.cursor-pointer, a, li, button') || anyIcon;
-          
-          if (targetNode && targetNode.parentNode) {
-              var btn = createLangBtn();
-              // 强行安插在这个图标的前面（左侧）
-              targetNode.parentNode.insertBefore(btn, targetNode);
-              updateBtnText();
-              console.log("✅ 报告站长：基因守卫已将 EN 按钮强行锁定在导航栏！");
-          }
-      }
-    }
-
-    // 🌟 终极杀器：开启 MutationObserver 监视器
-    // 只要 React 刷新页面导致按钮消失，立刻在后台光速补齐！
-    var observer = new MutationObserver(function(mutations) {
-        if (!document.getElementById('evan-lang-btn')) {
-            forceInject();
-        }
-    });
+    };
     
-    // 监视整个网页的任何风吹草动
-    observer.observe(document.body, { childList: true, subtree: true });
+    Weglot.on('languageChanged', updateText);
+
+    // 🚀 最关键的一步：直接将它追加到网页的 <body> 上！
+    // 彻底摆脱导航栏容器的束缚，React 永远干不掉它！
+    document.body.appendChild(langBtn);
     
-    // 立即执行一次
-    forceInject();
-    
-    // 监听 Weglot 语言变化
-    Weglot.on('languageChanged', updateBtnText);
+    console.log("✅ 报告站长：悬浮装甲版 EN 按钮已空降屏幕右上角！");
   };
   
   document.body.appendChild(script);
