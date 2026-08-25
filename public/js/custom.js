@@ -1,4 +1,4 @@
-// Weglot Hexo 双端原生融合版 (Tailwind 级适配)
+// Weglot Hexo - React 基因锁守卫版 (MutationObserver 终极杀器)
 setTimeout(function() {
   var script = document.createElement('script');
   script.src = "https://cdn.weglot.com/weglot.min.js";
@@ -9,104 +9,75 @@ setTimeout(function() {
         hide_switcher: true
     });
     
-    function injectNativeBtn() {
-      try {
-        if (document.getElementById('evan-lang-btn')) return true;
+    // 制作一个精致的独立按钮（带磨砂玻璃质感，放哪都好看）
+    function createLangBtn() {
+      var btn = document.createElement('a');
+      btn.id = 'evan-lang-btn';
+      btn.style.cssText = 'cursor: pointer; margin: 0 10px; padding: 4px 10px; border-radius: 6px; background: rgba(128,128,128,0.15); font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; z-index: 99999; color: inherit; text-decoration: none; backdrop-filter: blur(4px); transition: all 0.3s;';
+      
+      btn.onmouseover = function() { this.style.background = 'rgba(128,128,128,0.3)'; };
+      btn.onmouseout = function() { this.style.background = 'rgba(128,128,128,0.15)'; };
+      
+      btn.onclick = function(e) {
+        e.preventDefault(); e.stopPropagation();
+        Weglot.switchTo(Weglot.getCurrentLang() === 'zh' ? 'en' : 'zh');
+      };
+      return btn;
+    }
 
-        var iconsContainer = null;
-        var insertAfterNode = null;
+    function updateBtnText() {
+      var btn = document.getElementById('evan-lang-btn');
+      if (btn) btn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中文';
+    }
 
-        // 🎯 策略一：直接抓取放大镜 (最精确的图标定位)
-        var searchIcon = document.querySelector('.fa-search') || 
-                         document.querySelector('.fa-magnifying-glass') || 
-                         document.querySelector('[aria-label="search"]');
-                         
-        if (searchIcon) {
-            // 找到包含放大镜的点击热区 (w-8 h-8)
-            var searchBtn = searchIcon.closest('.cursor-pointer') || searchIcon.parentNode;
-            if (searchBtn && searchBtn.parentNode) {
-                iconsContainer = searchBtn.parentNode; // 这就是包裹所有图标的父级
-                insertAfterNode = searchBtn;
-            }
-        }
+    // 暴力注入逻辑
+    function forceInject() {
+      if (document.getElementById('evan-lang-btn')) {
+          updateBtnText();
+          return;
+      }
 
-        // 🎯 策略二：如果放大镜还没加载，通过“关于我”文字菜单兜底定位 (抗干扰最强)
-        if (!iconsContainer) {
-            var links = document.querySelectorAll('a, span');
-            var textLink = null;
-            for (var i = 0; i < links.length; i++) {
-                var txt = links[i].innerText || links[i].textContent;
-                if (txt && (txt.includes('关于我') || txt.includes('往期整理'))) {
-                    textLink = links[i]; break;
-                }
-            }
-            if (textLink) {
-                var current = textLink.parentNode;
-                // 向上遍历寻找被手机端隐藏的主菜单容器
-                for (var j = 0; j < 6; j++) {
-                    if (current && typeof current.className === 'string' && (current.className.includes('hidden') || current.className.includes('md:flex'))) {
-                        // 它的下一个兄弟节点必定是图标容器
-                        if (current.nextElementSibling) iconsContainer = current.nextElementSibling;
-                        break;
-                    }
-                    current = current ? current.parentNode : null;
-                }
-            }
-        }
+      // 1. 寻找顶栏容器
+      var header = document.querySelector('#nav') || document.querySelector('header') || document.querySelector('#top-nav') || document.querySelector('.top-nav');
+      if (!header) return;
 
-        if (!iconsContainer) return false; // 两个策略都没找到，说明网页还没渲染完，继续等
+      // 2. 广泛捕获右侧的任何图标（搜索、月亮/太阳、甚至是手机端的汉堡菜单）
+      var anyIcon = header.querySelector('.fa-search') || 
+                    header.querySelector('.search') || 
+                    header.querySelector('.fa-moon') || 
+                    header.querySelector('.fa-bars') || 
+                    header.querySelector('svg');
 
-        // 🛠️ 创建完美伪装的原生按钮
-        var langBtn = document.createElement('div');
-        langBtn.id = 'evan-lang-btn';
-        
-        // 🌟 核心魔法：使用与 Hexo 主题官方图标完全相同的 Tailwind 类名
-        // 这样就不需要手动写 margin 了，父容器会自动给它完美的等比间距！
-        langBtn.className = 'w-8 h-8 flex justify-center items-center cursor-pointer';
-        langBtn.style.cssText = 'font-weight: bold; font-size: 14px; z-index: 99999; display: flex !important; visibility: visible !important; color: inherit; transition: opacity 0.3s;';
-        
-        langBtn.onmouseover = function() { this.style.opacity = '0.7'; };
-        langBtn.onmouseout = function() { this.style.opacity = '1'; };
-
-        function updateText() {
-            // 手机端空间宝贵，中文状态显示短小精悍的"中"，英文显示"EN"
-            langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中';
-        }
-        updateText();
-
-        langBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation(); // 阻止事件冒泡引发的奇奇怪怪 Bug
-            Weglot.switchTo(Weglot.getCurrentLang() === 'zh' ? 'en' : 'zh');
-        };
-        Weglot.on('languageChanged', updateText);
-
-        // 🚀 最终注入：精确安插在放大镜的右侧 (下一个节点之前)
-        if (insertAfterNode && insertAfterNode.nextSibling) {
-            iconsContainer.insertBefore(langBtn, insertAfterNode.nextSibling);
-        } else if (iconsContainer.children.length > 1) {
-            iconsContainer.insertBefore(langBtn, iconsContainer.children[1]);
-        } else {
-            iconsContainer.appendChild(langBtn);
-        }
-
-        console.log("✅ 报告站长：双端原生融合版 EN 按钮已就位！");
-        return true;
-        
-      } catch (err) {
-        console.error("Weglot 注入出错，仍在重试...", err);
-        return false;
+      if (anyIcon) {
+          // 找到图标的可点击父级
+          var targetNode = anyIcon.closest('div.cursor-pointer, a, li, button') || anyIcon;
+          
+          if (targetNode && targetNode.parentNode) {
+              var btn = createLangBtn();
+              // 强行安插在这个图标的前面（左侧）
+              targetNode.parentNode.insertBefore(btn, targetNode);
+              updateBtnText();
+              console.log("✅ 报告站长：基因守卫已将 EN 按钮强行锁定在导航栏！");
+          }
       }
     }
+
+    // 🌟 终极杀器：开启 MutationObserver 监视器
+    // 只要 React 刷新页面导致按钮消失，立刻在后台光速补齐！
+    var observer = new MutationObserver(function(mutations) {
+        if (!document.getElementById('evan-lang-btn')) {
+            forceInject();
+        }
+    });
     
-    // 超级轮询保护：每 0.5 秒扫描一次，最多尝试 15 秒，必出结果！
-    var attempts = 0;
-    var timer = setInterval(function() {
-      if (injectNativeBtn() || attempts > 30) {
-        clearInterval(timer);
-      }
-      attempts++;
-    }, 500);
+    // 监视整个网页的任何风吹草动
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // 立即执行一次
+    forceInject();
+    
+    // 监听 Weglot 语言变化
+    Weglot.on('languageChanged', updateBtnText);
   };
   
   document.body.appendChild(script);
