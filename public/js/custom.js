@@ -1,78 +1,74 @@
-// Weglot 终极版：精准固定在放大镜旁边
+// Weglot Hexo 导航栏终极修正版
 setTimeout(function() {
   var script = document.createElement('script');
   script.src = "https://cdn.weglot.com/weglot.min.js";
   
   script.onload = function() {
     Weglot.initialize({
-        api_key: 'wg_09e141cacea940b6432fab178adc79f15', // 已替换为你的真实密钥
-        hide_switcher: true // 关闭默认浮动挂件
+        api_key: 'wg_09e141cacea940b6432fab178adc79f15', 
+        hide_switcher: true
     });
     
-    // 精准吸附到放大镜旁边的函数
-    function attachNextToSearch() {
-      // 1. 寻找网页上的搜索/放大镜图标按钮（兼容 Hexo 主题的常见类名）
-      var searchIconBtn = document.querySelector('header .fa-search') || 
-                          document.querySelector('header svg.search-icon') || 
-                          document.querySelector('header [aria-label*="search" i]') ||
-                          document.querySelector('header .search') ||
-                          document.querySelector('header .fa-magnifying-glass');
-                          
-      // 如果还没找到图标，就找包含放大镜的父级容器
-      var targetArea = searchIconBtn ? searchIconBtn.closest('a, button, div') : null;
-      
-      // 如果实在找不到，就退而求其次找右上角的整排图标容器
-      if (!targetArea) {
-        targetArea = document.querySelector('header nav') || document.querySelector('header .right-area');
-      }
-      
-      if (!targetArea) return; // 没找到位置就继续等待
-
-      // 2. 防止重复创建
+    function attachToTopNav() {
+      // 1. 如果已经添加成功，就跳过
       if (document.getElementById('fixed-lang-switch')) return;
+
+      // 2. 全局寻找顶部的右侧菜单容器（去掉之前错误的 header 限制）
+      // 囊括了 NotionNext 常见主题的各种顶部容器类名
+      var targetContainer = document.querySelector('#nav-right') || 
+                            document.querySelector('.nav-right') || 
+                            document.querySelector('.top-nav .flex-shrink-0') ||
+                            document.querySelector('#top-nav .flex');
+                            
+      // 如果还没找到，直接找放大镜图标所在的容器
+      if (!targetContainer) {
+         var icon = document.querySelector('.fa-search') || 
+                    document.querySelector('.search-button') ||
+                    document.querySelector('svg.search-icon');
+         if (icon) targetContainer = icon.closest('div, ul, nav');
+      }
+
+      if (!targetContainer) return; // 没找到就继续等
 
       // 3. 创建极简的 EN 切换按钮
       var langBtn = document.createElement('a');
       langBtn.id = 'fixed-lang-switch';
       
-      // 赋予和旁边图标完全一致的高级质感样式（圆角、悬停变色、合适的内边距）
-      langBtn.className = 'cursor-pointer px-2 py-1 mx-1 text-xs font-bold transition-all rounded-md hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center';
-      langBtn.style.display = 'inline-block';
+      // 样式自适应，融入顶部栏
+      langBtn.className = 'cursor-pointer px-2 py-1 mx-1 text-xs font-bold transition-all rounded-md hover:bg-black/20 dark:hover:bg-white/20 flex items-center justify-center';
+      langBtn.style.display = 'inline-flex';
       langBtn.style.textDecoration = 'none';
+      langBtn.style.color = 'inherit'; // 字体颜色自动跟随主题变化
 
-      // 实时同步当前语言状态显示文字
       function updateText() {
-        var currentLang = Weglot.getCurrentLang();
-        langBtn.innerText = currentLang === 'zh' ? 'EN' : '中文';
+        langBtn.innerText = Weglot.getCurrentLang() === 'zh' ? 'EN' : '中文';
       }
-      
       updateText();
       
-      // 点击时触发语言切换
       langBtn.onclick = function(e) {
         e.preventDefault();
-        var currentLang = Weglot.getCurrentLang();
-        var targetLang = currentLang === 'zh' ? 'en' : 'zh';
-        Weglot.switchTo(targetLang);
+        Weglot.switchTo(Weglot.getCurrentLang() === 'zh' ? 'en' : 'zh');
       };
       
-      // 当语言切换完成后更新按钮文字
-      Weglot.on('languageChanged', function() {
-        updateText();
-      });
+      Weglot.on('languageChanged', function() { updateText(); });
       
-      // 4. 将按钮精准插入到放大镜的前面
-      if (searchIconBtn && targetArea) {
-        targetArea.parentNode.insertBefore(langBtn, targetArea);
-      } else {
-        targetArea.appendChild(langBtn);
-      }
+      // 4. 将按钮插入到放大镜所在容器的内部
+      targetContainer.insertBefore(langBtn, targetContainer.firstChild);
       
-      console.log("✅ 报告站长：EN 按钮已成功锁定并固定在放大镜身旁！");
+      console.log("✅ 报告站长：EN 按钮已成功突破背景图，进入顶栏！");
     }
     
-    // 延迟 2 秒等待页面完全渲染
-    setTimeout(attachNextToSearch, 2000);
+    // 采用定时器循环检测 (每秒1次)，应对 Hexo 主题的菜单延迟加载
+    var checkInterval = setInterval(function() {
+        if (document.getElementById('fixed-lang-switch')) {
+            clearInterval(checkInterval); // 成功后停止检测
+        } else {
+            attachToTopNav();
+        }
+    }, 1000);
+
+    // 10秒后如果还没找到，就停止检测避免消耗性能
+    setTimeout(function() { clearInterval(checkInterval); }, 10000);
   };
   
   document.body.appendChild(script);
