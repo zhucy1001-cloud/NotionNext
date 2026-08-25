@@ -1,15 +1,5 @@
-// Weglot 翻译按钮 + 暴力查杀大标题与心情随笔 + 首帧隐身防闪烁技术
+// Weglot 翻译按钮 + 暴力物理拔除大标题 + 跑马灯强行搬运至页面最底部
 (function() {
-  // ==================== 0. 首帧防闪烁：网页一加载立刻把打字机容器设为透明 ====================
-  var antiFlashStyle = document.createElement('style');
-  antiFlashStyle.innerHTML = `
-    #typed, div:has(> #typed) {
-      opacity: 0 !important;
-      transition: opacity 0.3s ease-in;
-    }
-  `;
-  document.head.appendChild(antiFlashStyle);
-
   setTimeout(function() {
     // ==================== 1. Weglot 翻译按钮注入逻辑 ====================
     var script = document.createElement('script');
@@ -56,52 +46,59 @@
     };
     document.body.appendChild(script);
 
-    // ==================== 2. 永久巡逻进程：精准查杀大标题、心情随笔、并下沉跑马灯 ====================
+    // ==================== 2. 全局永久巡逻与物理改造 ====================
     setInterval(function() {
-      // A. 暴力查杀中央大标题 (遍历所有 h1，只要包含 Evan Space 且在首屏就隐藏)
-      var h1List = document.querySelectorAll('h1');
-      h1List.forEach(function(h1) {
-        if (h1.innerText && h1.innerText.includes('Evan Space')) {
-          // 排除导航栏可能存在的 logo
-          if (h1.getBoundingClientRect().top > 50) {
-            h1.style.display = 'none';
+      // 🎯 任务 A：彻底干掉中央大标题
+      // 遍历所有 h1 或大号字体标签，只要内容是 "Evan Space" 且不在导航栏，直接隐藏
+      var allHeaders = document.querySelectorAll('h1, div, span');
+      allHeaders.forEach(function(el) {
+        if (el.innerText && el.innerText.trim() === 'Evan Space' && el.children.length === 0) {
+          // 确保它是屏幕中央的那个大标题（排除左上角 logo）
+          var rect = el.getBoundingClientRect();
+          if (rect.top > 60 && rect.top < 300) {
+            el.style.setProperty('display', 'none', 'important');
+            // 如果它有外层包裹卡片，顺便隐藏
+            var parentBox = el.closest('.flex.flex-col') || el.parentElement;
+            if (parentBox && parentBox.innerText.trim() === 'Evan Space') {
+              parentBox.style.setProperty('display', 'none', 'important');
+            }
           }
         }
       });
 
-      // B. 彻底消灭“心情随笔”卡片
+      // 🎯 任务 B：干掉“心情随笔”卡片
       var allDivs = document.querySelectorAll('div, a');
       allDivs.forEach(function(el) {
         if (el.innerText && el.innerText.trim() === '心情随笔' && el.children.length < 3) {
           var card = el.closest('.cursor-pointer') || el.closest('div[class*="rounded"]');
           if (card) {
-            card.style.display = 'none';
+            card.style.setProperty('display', 'none', 'important');
           } else {
-            el.style.display = 'none';
+            el.style.setProperty('display', 'none', 'important');
           }
         }
       });
 
-      // C. 跑马灯瞬间转移到底部，并解除隐身状态
+      // 🎯 任务 C：跑马灯物理强行搬运到底部（绝对不会闪烁或消失）
       var typedElem = document.getElementById('typed');
       if (typedElem) {
         var subContainer = typedElem.parentElement;
-        if (subContainer && subContainer !== document.body) {
-          subContainer.style.position = 'absolute';
-          subContainer.style.bottom = '15px'; // 位于箭头下方
-          subContainer.style.left = '0';
-          subContainer.style.right = '0';
-          subContainer.style.margin = 'auto';
-          subContainer.style.zIndex = '20';
-          subContainer.style.textAlign = 'center';
-          subContainer.style.width = '100%';
-          subContainer.style.maxWidth = '900px';
-          
-          // 移位完成后，瞬间显形！
-          subContainer.style.opacity = '1';
+        if (subContainer && !subContainer.classList.contains('evan-relocated')) {
+          subContainer.classList.add('evan-relocated');
+          // 强制脱离原布局，直接锁死在屏幕底部正下方
+          subContainer.style.setProperty('position', 'fixed', 'important');
+          subContainer.style.setProperty('bottom', '15px', 'important');
+          subContainer.style.setProperty('left', '0', 'important');
+          subContainer.style.setProperty('right', '0', 'important');
+          subContainer.style.setProperty('margin', 'auto', 'important');
+          subContainer.style.setProperty('z-index', '999999', 'important');
+          subContainer.style.setProperty('text-align', 'center', 'important');
+          subContainer.style.setProperty('width', '100%', 'important');
+          subContainer.style.setProperty('max-width', '900px', 'important');
+          subContainer.style.setProperty('pointer-events', 'auto', 'important');
         }
       }
-    }, 200); // 频率提高到每 0.2 秒巡逻一次，确保以最快速度完成查杀和搬运
+    }, 100); // 0.1秒极速巡逻
 
-  }, 500);
+  }, 300);
 })();
