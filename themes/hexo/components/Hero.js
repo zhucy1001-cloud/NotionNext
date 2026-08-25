@@ -28,14 +28,13 @@ const Hero = props => {
   const { locale } = useGlobal()
 
   // 🎯 每次刷新时安全地随机抽出一张封面图
-  const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
-
-  useEffect(() => {
-    if (MY_COVER_GALLERY.length > 0) {
-      const randomIndex = Math.floor(Math.random() * MY_COVER_GALLERY.length)
-      setCurrentCover(MY_COVER_GALLERY[randomIndex])
-    }
-  }, [])
+const [currentCover] = useState(() => {
+  if (MY_COVER_GALLERY.length > 0) {
+    const randomIndex = Math.floor(Math.random() * MY_COVER_GALLERY.length)
+    return MY_COVER_GALLERY[randomIndex]
+  }
+  return siteInfo?.pageCover || ''
+})
 
   const scrollToWrapper = () => {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
