@@ -14,8 +14,8 @@ const Hero = props => {
   const { siteInfo } = props
   const { locale } = useGlobal()
 
-  // 1. 默认先使用博客配置的封面（防止网页刚打开时背景是黑的）
- // const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
+  // 1. 初始状态设为空，不再加载默认封面，彻底解决图片跳动问题
+  const [currentCover, setCurrentCover] = useState('')
 
   // 🎯 2. 核心魔法：自动扫描 GitHub 文件夹里的图片
   useEffect(() => {
@@ -54,7 +54,7 @@ const Hero = props => {
         }
       }
 
-      // 3. 从扫到的图片中随机抽选一张，替换当前背景！
+      // 3. 从扫到的图片中随机抽选一张，渲染背景！
       if (images.length > 0) {
         const randomIndex = Math.floor(Math.random() * images.length)
         setCurrentCover(images[randomIndex])
@@ -120,15 +120,19 @@ const Hero = props => {
           <i className='opacity-70 animate-bounce fas fa-angle-down' />
         </div>
       </div>
-      <LazyImage
-        priority
-        id='header-cover'
-        alt={siteInfo?.title}
-        src={currentCover}
-        width={1920}
-        height={1080}
-        className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
-      />
+      
+      {/* 仅当随机图片获取成功后才开始渲染，防止闪跳 */}
+      {currentCover && (
+        <LazyImage
+          priority
+          id='header-cover'
+          alt={siteInfo?.title}
+          src={currentCover}
+          width={1920}
+          height={1080}
+          className={`header-cover w-full h-screen object-cover object-center ${siteConfig('HEXO_HOME_NAV_BACKGROUND_IMG_FIXED', null, CONFIG) ? 'fixed' : ''}`}
+        />
+      )}
     </header>
   )
 }
