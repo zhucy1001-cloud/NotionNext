@@ -260,22 +260,17 @@ const Style = () => {
           to bottom,
           rgba(0, 0, 0, 0.5) 0%,
           rgba(0, 0, 0, 0.2) 10%,
-          rgba(0, 0, 0, 0, 0) 25%,
+          rgba(0, 0, 0, 0) 25%,
           rgba(0, 0, 0, 0.2) 75%,
           rgba(0, 0, 0, 0.5) 100%
         );
       }
 
-      /* 强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素靠左对齐 */
+      /* 强制侧边栏 Notice 模块内部的所有标题靠左对齐 */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
       #theme-hexo #announcement-wrapper h4,
-      #theme-hexo #announcement-wrapper p,
-      #theme-hexo #announcement-wrapper div,
-      #theme-hexo .notion-text h1,
-      #theme-hexo .notion-text h2,
-      #theme-hexo .notion-text h3,
       #theme-hexo .notion-h1,
       #theme-hexo .notion-h2,
       #theme-hexo .notion-h3 {
@@ -292,27 +287,13 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      #theme-hexo #announcement-wrapper .notion-h3 {
-        border-bottom: none !important;
-        padding-bottom: 0 !important;
-        margin-bottom: 0 !important;
-      }
-
-      /* 🌟 核心优化：让除了第一个大标题之外的后续板块上方自动带有一条精致分割线 */
-      #theme-hexo #announcement-wrapper > .notion-text:not(:first-of-type) h3,
-      #theme-hexo #announcement-wrapper > .notion-h3:not(:first-of-type),
-      #theme-hexo #announcement-wrapper h3:not(:first-of-type) {
+      /* 🌟 精准定位：只在“近期小目标”板块的底部（即紧接着的下一个大标题上方）画一条完美的分割线，其余地方（如 F1 和 NBA 之间）绝对不画线 */
+      #theme-hexo #announcement-wrapper h3:has-text("Formula 1"),
+      #theme-hexo #announcement-wrapper .notion-h3:has(> .notion-space-icon + span:contains("Formula 1")),
+      #theme-hexo #announcement-wrapper h3:nth-of-type(2) {
         border-top: 1px solid var(--hexo-color-border) !important;
         padding-top: 1.2rem !important;
         margin-top: 1.2rem !important;
-      }
-
-      /* 🌟 如果两个 h3 标题紧挨在一起（中间没有被其他内容隔开，例如 F1 和 NBA RSS），则取消它们之间的分割线 */
-      #theme-hexo #announcement-wrapper h3 + h3,
-      #theme-hexo #announcement-wrapper .notion-h3 + .notion-h3 {
-        border-top: none !important;
-        padding-top: 0 !important;
-        margin-top: 0.5rem !important;
       }
 
       /* Custem */
@@ -353,7 +334,7 @@ const Style = () => {
       #theme-hexo #home-nav-button a:hover {
         color: #000 !important;
       }
-    `}</style>
+  `}</style>
   )
 }
 
