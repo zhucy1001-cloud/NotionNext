@@ -266,15 +266,14 @@ const Style = () => {
         );
       }
 
-      /* 🌟 修复一：文本靠左对齐，去除 div 选择器，绝不误伤 RSS 模块导致标题空白 */
+      /* 🌟 1. 精准修复排版：仅仅让 Notice 里的【标题】靠左对齐，去除了之前误伤 RSS 小组件的所有错误规则！ */
       #theme-hexo #announcement-wrapper .notion-h1,
       #theme-hexo #announcement-wrapper .notion-h2,
-      #theme-hexo #announcement-wrapper .notion-h3,
-      #theme-hexo #announcement-wrapper .notion-text {
+      #theme-hexo #announcement-wrapper .notion-h3 {
         text-align: left !important;
       }
 
-      /* 待办事项整体向右缩进，字号变小、变得精致优雅 */
+      /* 🌟 2. 待办事项精细化排版：统一右侧缩进，并调整至优雅的小字号 */
       #theme-hexo #announcement-wrapper .notions-to-do,
       #theme-hexo #announcement-wrapper .notion-to-do {
         padding-left: 1.25rem !important;
@@ -284,26 +283,18 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 修复二：极其精准的单分割线。自动寻找 Notice 里的板块结构画线，无需去 Notion 操作 */
-      /* 1. 先隐藏 Notion 里面可能残留的手动分割线，防止冲突 */
+      /* 🌟 3. 神级精准定位线：利用 CSS 兄弟选择器，仅在“紧随待办事项块之后”的大标题（即 Formula 1）顶部画出分割线。这绝对不会影响到下方的 NBA 模块。 */
+      #theme-hexo #announcement-wrapper .notion-to-do + .notion-h3,
+      #theme-hexo #announcement-wrapper .notion-list + .notion-h3 {
+        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        padding-top: 1.5rem !important;
+        margin-top: 1.2rem !important;
+      }
+
+      /* 隐藏所有你在 Notion 后台手动敲进去的冗余分割线，保持画面彻底干净 */
       #theme-hexo #announcement-wrapper hr,
       #theme-hexo #announcement-wrapper .notion-divider {
         display: none !important;
-      }
-
-      /* 2. 给除了第一块（近期小目标）以外的标题加上顶部分割线。兄弟选择器精准命中 F1 和 NBA */
-      #theme-hexo #announcement-wrapper .notion-h3 ~ .notion-h3,
-      #theme-hexo #announcement-wrapper h3 ~ h3 {
-        border-top: 1px solid var(--hexo-color-border) !important;
-        padding-top: 1.5rem !important; /* 线下方间距 */
-        margin-top: 1.5rem !important;  /* 线上方间距 */
-      }
-
-      /* 3. 取消第三块（NBA）及以后的分割线，实现【只有近期小目标下方有一条线】的绝对精准需求 */
-      #theme-hexo #announcement-wrapper .notion-h3 ~ .notion-h3 ~ .notion-h3,
-      #theme-hexo #announcement-wrapper h3 ~ h3 ~ h3 {
-        border-top: none !important;
-        padding-top: 1.5rem !important; /* 保持板块间距，但没有线 */
       }
 
       /* Custem */
