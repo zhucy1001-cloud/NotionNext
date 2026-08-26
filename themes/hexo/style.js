@@ -282,7 +282,7 @@ const Style = () => {
         text-align: left !important;
       }
 
-      /* 🌟 1. 待办事项整体向右缩进，且字号变小、变得精致优雅 */
+      /* 待办事项整体向右缩进，字号变小、变得精致优雅 */
       #theme-hexo #announcement-wrapper .notions-to-do,
       #theme-hexo #announcement-wrapper .notion-to-do {
         padding-left: 1.25rem !important;
@@ -292,14 +292,24 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 2. 强制渲染出高颜值的暗色分割线，解决之前分割线出不来的问题 */
+      /* 🌟 核心修复：直接将 Notion 页面里所有的 hr 分隔线或特定间距块强制渲染成和上方 Top Favorite 完全一致的高级细边框 */
       #theme-hexo #announcement-wrapper hr,
-      #theme-hexo .notion-divider {
+      #theme-hexo .notion-divider,
+      #theme-hexo #announcement-wrapper .notion-hr {
         display: block !important;
+        visibility: visible !important;
         height: 1px !important;
-        background-color: rgba(255, 255, 255, 0.1) !important;
+        background-color: var(--hexo-color-border) !important;
         border: none !important;
         margin: 1.2rem 0 !important;
+        opacity: 1 !important;
+      }
+
+      /* 备用大招：如果 Notion 里用的是空行或者其他区块作为分隔，这里直接给 Notice 内部带有标题的区块下方自动加上一致的边框样式 */
+      #theme-hexo #announcement-wrapper .notion-h3 {
+        border-bottom: 1px solid var(--hexo-color-border);
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
       }
 
       /* Custem */
