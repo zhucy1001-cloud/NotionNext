@@ -1,327 +1,434 @@
-/* eslint-disable react/no-unknown-property */
-import { themeConsoleStyle } from '@/lib/themeConsoleStyle'
+import Comment from '@/components/Comment'
+import replaceSearchResult from '@/components/Mark'
+import NotionPage from '@/components/NotionPage'
+import ShareBar from '@/components/ShareBar'
 import { siteConfig } from '@/lib/config'
+import { useGlobal } from '@/lib/global'
+import { isBrowser } from '@/lib/utils'
+import { Transition } from '@headlessui/react'
+import dynamic from 'next/dynamic'
+import SmartLink from '@/components/SmartLink'
+import { useRouter } from 'next/router'
+import { createContext, useContext, useEffect, useRef } from 'react'
+import ArticleAdjacent from './components/ArticleAdjacent'
+import ArticleCopyright from './components/ArticleCopyright'
+import { ArticleLock } from './components/ArticleLock'
+import ArticleRecommend from './components/ArticleRecommend'
+import BlogPostArchive from './components/BlogPostArchive'
+import BlogPostListPage from './components/BlogPostListPage'
+import BlogPostListScroll from './components/BlogPostListScroll'
+import ButtonJumpToComment from './components/ButtonJumpToComment'
+import ButtonRandomPostMini from './components/ButtonRandomPostMini'
+import Card from './components/Card'
+import Footer from './components/Footer'
+import Header from './components/Header'
+import Hero from './components/Hero'
+import PostHero from './components/PostHero'
+import RightFloatArea from './components/RightFloatArea'
+import SearchNav from './components/SearchNav'
+import SideRight from './components/SideRight'
+import SlotBar from './components/SlotBar'
+import TagItemMini from './components/TagItemMini'
+import TocDrawer from './components/TocDrawer'
+import TocDrawerButton from './components/TocDrawerButton'
+import ArticleSwitchPlaceholder from './components/ArticleSwitchPlaceholder'
 import CONFIG from './config'
+import { Style } from './style'
+
+const AlgoliaSearchModal = dynamic(
+  () => import('@/components/AlgoliaSearchModal'),
+  { ssr: false }
+)
+
+// 主题全局状态
+const ThemeGlobalHexo = createContext()
+export const useHexoGlobal = () => useContext(ThemeGlobalHexo)
 
 /**
- * 这里的css样式只对当前主题生效
- * 主题客制化css
- * @returns
+ * 基础布局 采用左右两侧布局，移动端使用顶部导航栏
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
  */
-const Style = () => {
-  // 从配置中获取主题色，如果没有配置则使用默认值 #928CEE
-  const legacyThemeColor = siteConfig('HEXO_THEME_COLOR', '#928CEE', CONFIG)
-  const primary = siteConfig('HEXO_COLOR_PRIMARY', legacyThemeColor, CONFIG)
-  const primaryDark = siteConfig('HEXO_COLOR_PRIMARY_DARK', primary, CONFIG)
-  const background = siteConfig('HEXO_COLOR_BG', '#f5f5f5', CONFIG)
-  const backgroundDark = siteConfig('HEXO_COLOR_BG_DARK', '#000000', CONFIG)
-  const surface = siteConfig('HEXO_COLOR_CARD', '#ffffff', CONFIG)
-  const surfaceDark = siteConfig('HEXO_COLOR_CARD_DARK', '#101414', CONFIG)
-  const title = siteConfig('HEXO_COLOR_TITLE', '#4b5563', CONFIG)
-  const titleDark = siteConfig('HEXO_COLOR_TITLE_DARK', '#f3f4f6', CONFIG)
-  const text = siteConfig('HEXO_COLOR_TEXT', '#374151', CONFIG)
-  const textDark = siteConfig('HEXO_COLOR_TEXT_DARK', '#d1d5db', CONFIG)
-  const textSecondary = siteConfig('HEXO_COLOR_TEXT_SECONDARY', '#9ca3af', CONFIG)
-  const textSecondaryDark = siteConfig('HEXO_COLOR_TEXT_SECONDARY_DARK', '#6b7280', CONFIG)
-  const border = siteConfig('HEXO_COLOR_BORDER', '#e5e7eb', CONFIG)
-  const borderDark = siteConfig('HEXO_COLOR_BORDER_DARK', '#000000', CONFIG)
+const LayoutBase = props => {
+  const { post, children, slotTop } = props // 移除了 className 解构，由内部统一管控
+  const { onLoading, fullWidth } = useGlobal()
+  const router = useRouter()
+  const showRandomButton = siteConfig('HEXO_MENU_RANDOM', false, CONFIG)
+  const isArticleSlugPage = router.pathname === '/[prefix]/[slug]'
+  const hexoArticleRouteLoading = siteConfig(
+    'HEXO_ARTICLE_ROUTE_LOADING',
+    true,
+    CONFIG
+  )
+  const showArticleSwitchPlaceholder =
+    hexoArticleRouteLoading && isArticleSlugPage && onLoading
+
+  const headerSlot = post ? (
+    <PostHero {...props} />
+  ) : router.route === '/' &&
+    siteConfig('HEXO_HOME_BANNER_ENABLE', null, CONFIG) ? (
+    <Hero {...props} />
+  ) : null
+
+  const drawerRight = useRef(null)
+  const tocRef = isBrowser ? document.getElementById('article-wrapper') : null
+
+  // 悬浮按钮内容
+  const floatSlot = (
+    <>
+      {post?.toc?.length > 1 && (
+        <div className='block lg:hidden'>
+          <TocDrawerButton
+            onClick={() => {
+              drawerRight?.current?.handleSwitchVisible()
+            }}
+          />
+        </div>
+      )}
+      {post && <ButtonJumpToComment />}
+      {showRandomButton && <ButtonRandomPostMini {...props} />}
+    </>
+  )
+
+  // Algolia搜索框
+  const searchModal = useRef(null)
 
   return (
-    <style jsx global>{`
-      #theme-hexo {
-        --hexo-color-primary-light: ${primary};
-        --hexo-color-primary-dark: ${primaryDark};
-        --hexo-color-bg-light: ${background};
-        --hexo-color-bg-dark: ${backgroundDark};
-        --hexo-color-card-light: ${surface};
-        --hexo-color-card-dark: ${surfaceDark};
-        --hexo-color-title-light: ${title};
-        --hexo-color-title-dark: ${titleDark};
-        --hexo-color-text-light: ${text};
-        --hexo-color-text-dark: ${textDark};
-        --hexo-color-text-secondary-light: ${textSecondary};
-        --hexo-color-text-secondary-dark: ${textSecondaryDark};
-        --hexo-color-border-light: ${border};
-        --hexo-color-border-dark: ${borderDark};
-        --theme-color: var(--hexo-color-primary-light);
-        --hexo-color-bg: var(--hexo-color-bg-light);
-        --hexo-color-card: var(--hexo-color-card-light);
-        --hexo-color-title: var(--hexo-color-title-light);
-        --hexo-color-text: var(--hexo-color-text-light);
-        --hexo-color-text-secondary: var(--hexo-color-text-secondary-light);
-        --hexo-color-border: var(--hexo-color-border-light);
-      }
+    <ThemeGlobalHexo.Provider value={{ searchModal }}>
+      <div
+        id='theme-hexo'
+        className={`${siteConfig('FONT_STYLE')} dark:bg-black scroll-smooth`}>
+        <Style />
 
-      .dark #theme-hexo {
-        --theme-color: var(--hexo-color-primary-dark);
-        --hexo-color-bg: var(--hexo-color-bg-dark);
-        --hexo-color-card: var(--hexo-color-card-dark);
-        --hexo-color-title: var(--hexo-color-title-dark);
-        --hexo-color-text: var(--hexo-color-text-dark);
-        --hexo-color-text-secondary: var(--hexo-color-text-secondary-dark);
-        --hexo-color-border: var(--hexo-color-border-dark);
-      }
+        {/* 顶部导航 */}
+        <Header {...props} />
 
-      #theme-hexo,
-      #theme-hexo .bg-hexo-background-gray {
-        background-color: var(--hexo-color-bg);
-      }
+        {/* 顶部嵌入 */}
+        <Transition
+          show={!onLoading}
+          appear={true}
+          enter='transition ease-in-out duration-700 transform order-first'
+          enterFrom='opacity-0 -translate-y-16'
+          enterTo='opacity-100'
+          leave='transition ease-in-out duration-300 transform'
+          leaveFrom='opacity-100'
+          leaveTo='opacity-0 translate-y-16'
+          unmount={false}>
+          {headerSlot}
+        </Transition>
 
-      #theme-hexo #blog-post-card,
-      #theme-hexo .card,
-      #theme-hexo #announcement-wrapper,
-      #theme-hexo .article {
-        background-color: var(--hexo-color-card);
-        border-color: var(--hexo-color-border);
-      }
+        {/* 主区块 */}
+        <main
+          id='wrapper'
+          className={`${siteConfig('HEXO_HOME_BANNER_ENABLE', null, CONFIG) ? 'pt-0' : 'pt-16'} bg-hexo-background-gray dark:bg-black w-full md:px-8 lg:px-24 min-h-screen relative`}>
+          <div
+            id='container-inner'
+            className={
+              (JSON.parse(siteConfig('LAYOUT_SIDEBAR_REVERSE'))
+                ? 'flex-row-reverse'
+                : '') +
+              ' w-full mx-auto lg:flex lg:space-x-4 justify-center relative z-10 items-start'
+            }>
+            <div
+              /* 🌟 核心修复 1：移除了外部传入的 className，防止文章页被莫名其妙的路由边距压低 */
+              className={`w-full ${fullWidth ? '' : 'max-w-4xl'} overflow-hidden`}>
+              {showArticleSwitchPlaceholder ? (
+                <ArticleSwitchPlaceholder />
+              ) : (
+                <Transition
+                  show={isArticleSlugPage ? true : !onLoading}
+                  appear={true}
+                  enter='transition ease-in-out duration-700 transform order-first'
+                  enterFrom='opacity-0 translate-y-16'
+                  enterTo='opacity-100'
+                  leave='transition ease-in-out duration-300 transform'
+                  leaveFrom='opacity-100 translate-y-0'
+                  leaveTo='opacity-0 -translate-y-16'
+                  unmount={false}>
+                  {/* 主区上部嵌入 */}
+                  {slotTop}
 
-      #theme-hexo #blog-post-card h2 .menu-link {
-        color: var(--hexo-color-title);
-      }
+                  {children}
+                </Transition>
+              )}
+            </div>
 
-      #theme-hexo #blog-post-card main,
-      #theme-hexo #blog-post-card p {
-        color: var(--hexo-color-text);
-      }
+            {/* 右侧栏 */}
+            <SideRight {...props} />
+          </div>
+        </main>
 
-      #theme-hexo #blog-post-card .text-gray-400 {
-        color: var(--hexo-color-text-secondary);
-      }
+        <div className='block lg:hidden'>
+          <TocDrawer post={post} cRef={drawerRight} targetRef={tocRef} />
+        </div>
 
-      /* 菜单下划线动画 */
-      #theme-hexo .menu-link {
-        text-decoration: none;
-        background-image: linear-gradient(
-          var(--theme-color),
-          var(--theme-color)
-        );
-        background-repeat: no-repeat;
-        background-position: bottom center;
-        background-size: 0 2px;
-        transition: background-size 100ms ease-in-out;
-      }
+        {/* 悬浮菜单 */}
+        <RightFloatArea floatSlot={floatSlot} />
 
-      #theme-hexo .menu-link:hover {
-        background-size: 100% 2px;
-        color: var(--theme-color);
-      }
+        {/* 全文搜索 */}
+        <AlgoliaSearchModal cRef={searchModal} {...props} />
 
-      /* 文章列表中标题行悬浮时的文字颜色 */
-      #theme-hexo h2:hover .menu-link {
-        color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo h2:hover .menu-link {
-        color: var(--theme-color) !important;
-      }
-
-      /* 下拉菜单悬浮背景色 */
-      #theme-hexo li[class*='hover:bg-indigo-500']:hover {
-        background-color: var(--theme-color) !important;
-      }
-
-      /* tag标签悬浮背景色 */
-      #theme-hexo a[class*='hover:bg-indigo-400']:hover {
-        background-color: var(--theme-color) !important;
-      }
-
-      /* 社交按钮悬浮颜色 */
-      #theme-hexo i[class*='hover:text-indigo-600']:hover {
-        color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo i[class*='dark:hover:text-indigo-400']:hover {
-        color: var(--theme-color) !important;
-      }
-
-      /* MenuGroup 悬浮颜色 */
-      #theme-hexo #nav div[class*='hover:text-indigo-600']:hover {
-        color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo #nav div[class*='dark:hover:text-indigo-400']:hover {
-        color: var(--theme-color) !important;
-      }
-
-      /* 最新发布文章悬浮颜色 */
-      #theme-hexo div[class*='hover:text-indigo-600']:hover,
-      #theme-hexo div[class*='hover:text-indigo-400']:hover {
-        color: var(--theme-color) !important;
-      }
-
-      /* 分页组件颜色 */
-      #theme-hexo .text-indigo-400 {
-        color: var(--theme-color) !important;
-      }
-      #theme-hexo .border-indigo-400 {
-        border-color: var(--theme-color) !important;
-      }
-      #theme-hexo a[class*='hover:bg-indigo-400']:hover {
-        background-color: var(--theme-color) !important;
-        color: white !important;
-      }
-      /* 移动设备下，搜索组件中选中分类的高亮背景色 */
-      #theme-hexo div[class*='hover:bg-indigo-400']:hover {
-        background-color: var(--theme-color) !important;
-      }
-      #theme-hexo .hover\:bg-indigo-400:hover {
-        background-color: var(--theme-color) !important;
-      }
-      #theme-hexo .bg-indigo-400 {
-        background-color: var(--theme-color) !important;
-      }
-      #theme-hexo a[class*='hover:bg-indigo-600']:hover {
-        background-color: var(--theme-color) !important;
-        color: white !important;
-      }
-
-      /* 右下角悬浮按钮背景色 */
-      #theme-hexo .bg-indigo-500 {
-        background-color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo .dark\:bg-indigo-500 {
-        background-color: var(--theme-color) !important;
-      }
-
-      // 移动设备菜单栏选中背景色
-      #theme-hexo div[class*='hover:bg-indigo-500']:hover {
-        background-color: var(--theme-color) !important;
-      }
-
-      /* 文章浏览进度条颜色 */
-      #theme-hexo .bg-indigo-600 {
-        background-color: var(--theme-color) !important;
-      }
-      /* 当前浏览位置标题高亮颜色 */
-      #theme-hexo .border-indigo-800 {
-        border-color: var(--theme-color) !important;
-      }
-      #theme-hexo .text-indigo-800 {
-        color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo .dark\:text-indigo-400 {
-        color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo .dark\:border-indigo-400 {
-        border-color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo .dark\:border-white {
-        border-color: var(--theme-color) !important;
-      }
-      /* 目录项悬浮时的字体颜色 */
-      #theme-hexo a[class*='hover:text-indigo-800']:hover {
-        color: var(--theme-color) !important;
-      }
-      /* 深色模式下目录项的默认文字颜色和边框线颜色 */
-      .dark #theme-hexo .catalog-item {
-        color: white !important;
-        border-color: white !important;
-      }
-      .dark #theme-hexo .catalog-item:hover {
-        color: var(--theme-color) !important;
-      }
-      /* 深色模式下当前高亮标题的边框线颜色 */
-      .dark #theme-hexo .catalog-item.font-bold {
-        border-color: var(--theme-color) !important;
-      }
-
-      /* 文章底部版权声明组件左侧边框线颜色 */
-      #theme-hexo .border-indigo-500 {
-        border-color: var(--theme-color) !important;
-      }
-
-      /* 归档页面文章列表项悬浮时左侧边框线颜色 */
-      #theme-hexo li[class*='hover:border-indigo-500']:hover {
-        border-color: var(--theme-color) !important;
-      }
-
-      /* 自定义右键菜单悬浮高亮颜色 */
-      #theme-hexo .hover\:bg-blue-600:hover {
-        background-color: var(--theme-color) !important;
-      }
-      .dark #theme-hexo li[class*='dark:hover:border-indigo-300']:hover {
-        border-color: var(--theme-color) !important;
-      }
-      /* 深色模式下，归档页面文章列表项默认状态左侧边框线颜色 */
-      .dark #theme-hexo li[class*='dark:border-indigo-400'] {
-        border-color: var(--theme-color) !important;
-      }
-      /* 深色模式下，归档页面文章标题悬浮时的文字颜色 */
-      .dark #theme-hexo a[class*='dark:hover:text-indigo-300']:hover {
-        color: var(--theme-color) !important;
-      }
-
-      /* 设置了从上到下的渐变黑色 */
-      #theme-hexo .header-cover::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.5) 0%,
-          rgba(0, 0, 0, 0.2) 10%,
-          rgba(0, 0, 0, 0) 25%,
-          rgba(0, 0, 0, 0.2) 75%,
-          rgba(0, 0, 0, 0.5) 100%
-        );
-      }
-
-      /* 🌟 核心修复：强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素全局靠左对齐，解决居中偏移 */
-      #theme-hexo #announcement-wrapper h1,
-      #theme-hexo #announcement-wrapper h2,
-      #theme-hexo #announcement-wrapper h3,
-      #theme-hexo #announcement-wrapper h4,
-      #theme-hexo #announcement-wrapper p,
-      #theme-hexo #announcement-wrapper div,
-      #theme-hexo .notion-text h1,
-      #theme-hexo .notion-text h2,
-      #theme-hexo .notion-text h3,
-      #theme-hexo .notion-h1,
-      #theme-hexo .notion-h2,
-      #theme-hexo .notion-h3 {
-        text-align: left !important;
-      }
-
-      /* Custem */
-      .tk-footer {
-        opacity: 0;
-      }
-
-      // 选中字体颜色
-      ::selection {
-        background: color-mix(in srgb, var(--theme-color) 30%, transparent);
-      }
-
-      // 自定义滚动条
-      ::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
-      }
-
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      ::-webkit-scrollbar-thumb {
-        background-color: var(--theme-color);
-      }
-
-      * {
-        scrollbar-width: thin;
-        scrollbar-color: var(--theme-color) transparent;
-      }
-
-      ${themeConsoleStyle('hexo', CONFIG)}
-
-      #theme-hexo #home-nav-button a {
-        color: #fff !important;
-      }
-
-      #theme-hexo #home-nav-button a:hover {
-        color: #000 !important;
-      }
-  `}</style>
+        {/* 页脚 */}
+        <Footer title={siteConfig('TITLE')} />
+      </div>
+    </ThemeGlobalHexo.Provider>
   )
 }
 
-export { Style }
+/**
+ * 首页
+ * 是一个博客列表，嵌入一个Hero大图
+ */
+const LayoutIndex = props => {
+  return <LayoutPostList {...props} className='pt-8' />
+}
+
+/**
+ * 博客列表
+ */
+const LayoutPostList = props => {
+  return (
+    <div className='pt-8'>
+      <SlotBar {...props} />
+      {siteConfig('POST_LIST_STYLE') === 'page' ? (
+        <BlogPostListPage {...props} />
+      ) : (
+        <BlogPostListScroll {...props} />
+      )}
+    </div>
+  )
+}
+
+/**
+ * 搜索
+ */
+const LayoutSearch = props => {
+  const { keyword } = props
+  const router = useRouter()
+  const currentSearch = keyword || router?.query?.s
+
+  useEffect(() => {
+    if (currentSearch) {
+      replaceSearchResult({
+        doms: document.getElementsByClassName('replace'),
+        search: keyword,
+        target: {
+          element: 'span',
+          className: 'text-red-500 border-b border-dashed'
+        }
+      })
+    }
+  })
+
+  return (
+    <div className='pt-8'>
+      {!currentSearch ? (
+        <SearchNav {...props} />
+      ) : (
+        <div id='posts-wrapper'>
+          {' '}
+          {siteConfig('POST_LIST_STYLE') === 'page' ? (
+            <BlogPostListPage {...props} />
+          ) : (
+            <BlogPostListScroll {...props} />
+          )}{' '}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * 归档
+ */
+const LayoutArchive = props => {
+  const { archivePosts } = props
+  return (
+    <div className='pt-8'>
+      <Card className='w-full'>
+        <div className='mb-10 pb-20 bg-white md:p-12 p-3 min-h-full dark:bg-hexo-black-gray'>
+          {Object.keys(archivePosts).map(archiveTitle => (
+            <BlogPostArchive
+              key={archiveTitle}
+              posts={archivePosts[archiveTitle]}
+              archiveTitle={archiveTitle}
+            />
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * 文章详情
+ */
+const LayoutSlug = props => {
+  const { post, lock, validPassword } = props
+  const router = useRouter()
+  const waiting404 = siteConfig('POST_WAITING_TIME_FOR_404') * 1000
+  useEffect(() => {
+    // 404
+    if (!post) {
+      setTimeout(
+        () => {
+          if (isBrowser) {
+            const article = document.querySelector('#article-wrapper #notion-article')
+            if (!article) {
+              router.push('/404').then(() => {
+                console.warn('找不到页面', router.asPath)
+              })
+            }
+          }
+        },
+        waiting404
+      )
+    }
+  }, [post])
+  
+  return (
+    /* 🌟 核心修复 2：将顶部的空标签 <> 替换为明确的 pt-8 容器，使其与主页 (LayoutPostList) 完全共享同一套对齐标准 */
+    <div className='pt-8'>
+      <div className='w-full lg:hover:shadow lg:border rounded-t-xl lg:rounded-xl lg:px-2 lg:py-4 bg-white dark:bg-hexo-black-gray dark:border-black article'>
+        {lock && <ArticleLock validPassword={validPassword} />}
+
+        {!lock && post && (
+          <div className='overflow-x-auto flex-grow mx-auto md:w-full md:px-5 '>
+            <article
+              id='article-wrapper'
+              className='subpixel-antialiased overflow-y-hidden'>
+              {/* Notion文章主体 */}
+              <section className='px-5 justify-center mx-auto max-w-2xl lg:max-w-full'>
+                {post && <NotionPage post={post} />}
+              </section>
+
+              {/* 分享 */}
+              <ShareBar post={post} />
+              {post?.type === 'Post' && (
+                <>
+                  <ArticleCopyright {...props} />
+                  <ArticleRecommend {...props} />
+                  <ArticleAdjacent {...props} />
+                </>
+              )}
+            </article>
+
+            <div className='pt-4 border-dashed'></div>
+
+            {/* 评论互动 */}
+            <div className='duration-200 overflow-x-auto bg-white dark:bg-hexo-black-gray px-3'>
+              <Comment frontMatter={post} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * 404
+ */
+const Layout404 = props => {
+  const router = useRouter()
+  const { locale } = useGlobal()
+  useEffect(() => {
+    setTimeout(() => {
+      if (isBrowser) {
+        const article = document.querySelector('#article-wrapper #notion-article')
+        if (!article) {
+          router.push('/').then(() => {
+          })
+        }
+      }
+    }, 3000)
+  })
+  return (
+    <>
+      <div className='text-black w-full h-screen text-center justify-center content-center items-center flex flex-col'>
+        <div className='dark:text-gray-200'>
+          <h2 className='inline-block border-r-2 border-gray-600 mr-2 px-3 py-2 align-top'>
+            404
+          </h2>
+          <div className='inline-block text-left h-32 leading-10 items-center'>
+            <h2 className='m-0 p-0'>{locale.COMMON.NOT_FOUND}</h2>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+/**
+ * 分类列表
+ */
+const LayoutCategoryIndex = props => {
+  const { categoryOptions } = props
+  const { locale } = useGlobal()
+  return (
+    <div className='mt-8'>
+      <Card className='w-full min-h-screen'>
+        <div className='dark:text-gray-200 mb-5 mx-3'>
+          <i className='mr-4 fas fa-th' /> {locale.COMMON.CATEGORY}:
+        </div>
+        <div id='category-list' className='duration-200 flex flex-wrap mx-8'>
+          {categoryOptions?.map(category => {
+            return (
+              <SmartLink
+                key={category.name}
+                href={`/category/${category.name}`}
+                passHref
+                legacyBehavior>
+                <div
+                  className={
+                    ' duration-300 dark:hover:text-white px-5 cursor-pointer py-2 hover:text-indigo-400'
+                  }>
+                  <i className='mr-4 fas fa-folder' /> {category.name}(
+                  {category.count})
+                </div>
+              </SmartLink>
+            )
+          })}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * 标签列表
+ */
+const LayoutTagIndex = props => {
+  const { tagOptions } = props
+  const { locale } = useGlobal()
+  return (
+    <div className='mt-8'>
+      <Card className='w-full'>
+        <div className='dark:text-gray-200 mb-5 ml-4'>
+          <i className='mr-4 fas fa-tag' /> {locale.COMMON.TAGS}:
+        </div>
+        <div id='tags-list' className='duration-200 flex flex-wrap ml-8'>
+          {tagOptions.map(tag => (
+            <div key={tag.name} className='p-2'>
+              <TagItemMini key={tag.name} tag={tag} />
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+export {
+  Layout404,
+  LayoutArchive,
+  LayoutBase,
+  LayoutCategoryIndex,
+  LayoutIndex,
+  LayoutPostList,
+  LayoutSearch,
+  LayoutSlug,
+  LayoutTagIndex,
+  CONFIG as THEME_CONFIG
+}
