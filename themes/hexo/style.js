@@ -266,7 +266,7 @@ const Style = () => {
         );
       }
 
-      /* 🌟 1. 安全且精准的标题左对齐（绝对不碰任何通用 div 或 RSS 容器，保护文章标题完整呈现） */
+      /* 🌟 1. 安全且精准的标题左对齐 */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
@@ -287,9 +287,9 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 3. 极简且完美的分割线控制。删除了所有复杂的干扰逻辑。
-         现在的规则是：只要你在 Notion 里敲出了分割线，就统一赋予高级的边距和颜色。
-         （因为你已经把不需要的分割线都删掉了，所以这里只会渲染你留在“3. 没想好”下方的那唯一一条线！） */
+      /* 🌟 3. 完美居中的分割线控制！
+         加大了上边距（margin-top），缩小了下边距（margin-bottom），
+         抵消 Formula 1 标题自带的留白，让线正好卡在视觉的正中间。 */
       #theme-hexo #announcement-wrapper hr,
       #theme-hexo #announcement-wrapper .notion-divider,
       #theme-hexo #announcement-wrapper .notion-hr {
@@ -298,7 +298,7 @@ const Style = () => {
         height: 1px !important;
         background-color: var(--hexo-color-border) !important;
         border: none !important;
-        margin: 1.5rem 0 !important;
+        margin: 2rem 0 0.5rem 0 !important; /* 上边距 2rem，下边距 0.5rem */
         opacity: 0.85 !important;
         width: 100% !important;
       }
