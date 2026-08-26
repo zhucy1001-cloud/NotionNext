@@ -88,7 +88,7 @@ const Style = () => {
         color: var(--hexo-color-text-secondary);
       }
 
-      /*  菜单下划线动画 */
+      /* 菜单下划线动画 */
       #theme-hexo .menu-link {
         text-decoration: none;
         background-image: linear-gradient(
@@ -264,6 +264,22 @@ const Style = () => {
           rgba(0, 0, 0, 0.2) 75%,
           rgba(0, 0, 0, 0.5) 100%
         );
+      }
+
+      /* 🌟 核心修复：强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素全局靠左对齐，解决居中偏移 */
+      #theme-hexo #announcement-wrapper h1,
+      #theme-hexo #announcement-wrapper h2,
+      #theme-hexo #announcement-wrapper h3,
+      #theme-hexo #announcement-wrapper h4,
+      #theme-hexo #announcement-wrapper p,
+      #theme-hexo #announcement-wrapper div,
+      #theme-hexo .notion-text h1,
+      #theme-hexo .notion-text h2,
+      #theme-hexo .notion-text h3,
+      #theme-hexo .notion-h1,
+      #theme-hexo .notion-h2,
+      #theme-hexo .notion-h3 {
+        text-align: left !important;
       }
 
       /* Custem */
