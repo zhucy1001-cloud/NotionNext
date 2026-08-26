@@ -292,20 +292,27 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 核心优化：清除上一次误加在标题下方的线，改为在每一个大标题（板块开头）的上方自动生成一条高级分割线（跳过第一块） */
       #theme-hexo #announcement-wrapper .notion-h3 {
         border-bottom: none !important;
         padding-bottom: 0 !important;
         margin-bottom: 0 !important;
       }
 
-      /* 让除了第一个标题（近期小目标）之外的后续大板块（如 F1、NBA）上方自动带有一条精致分割线与舒适间距 */
+      /* 🌟 核心优化：让除了第一个大标题之外的后续板块上方自动带有一条精致分割线 */
       #theme-hexo #announcement-wrapper > .notion-text:not(:first-of-type) h3,
       #theme-hexo #announcement-wrapper > .notion-h3:not(:first-of-type),
       #theme-hexo #announcement-wrapper h3:not(:first-of-type) {
         border-top: 1px solid var(--hexo-color-border) !important;
         padding-top: 1.2rem !important;
         margin-top: 1.2rem !important;
+      }
+
+      /* 🌟 如果两个 h3 标题紧挨在一起（中间没有被其他内容隔开，例如 F1 和 NBA RSS），则取消它们之间的分割线 */
+      #theme-hexo #announcement-wrapper h3 + h3,
+      #theme-hexo #announcement-wrapper .notion-h3 + .notion-h3 {
+        border-top: none !important;
+        padding-top: 0 !important;
+        margin-top: 0.5rem !important;
       }
 
       /* Custem */
@@ -346,7 +353,7 @@ const Style = () => {
       #theme-hexo #home-nav-button a:hover {
         color: #000 !important;
       }
-  `}</style>
+    `}</style>
   )
 }
 
