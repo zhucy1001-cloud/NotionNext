@@ -51,7 +51,7 @@ export const useHexoGlobal = () => useContext(ThemeGlobalHexo)
  * @constructor
  */
 const LayoutBase = props => {
-  const { post, children, slotTop, className } = props
+  const { post, children, slotTop } = props // 移除了 className 解构，由内部统一管控
   const { onLoading, fullWidth } = useGlobal()
   const router = useRouter()
   const showRandomButton = siteConfig('HEXO_MENU_RANDOM', false, CONFIG)
@@ -128,12 +128,11 @@ const LayoutBase = props => {
               (JSON.parse(siteConfig('LAYOUT_SIDEBAR_REVERSE'))
                 ? 'flex-row-reverse'
                 : '') +
-              /* 🌟 核心修复 1：加入 items-start 强制左侧主容器和右侧边栏在顶部水平对齐 */
               ' w-full mx-auto lg:flex lg:space-x-4 justify-center relative z-10 items-start'
             }>
             <div
-              /* 🌟 核心修复 2：移除了 h-full，防止高度拉伸引发的内部排版塌陷 */
-              className={`${className || ''} w-full ${fullWidth ? '' : 'max-w-4xl'} overflow-hidden`}>
+              /* 🌟 核心修复 1：移除了外部传入的 className，防止文章页被莫名其妙的路由边距压低 */
+              className={`w-full ${fullWidth ? '' : 'max-w-4xl'} overflow-hidden`}>
               {showArticleSwitchPlaceholder ? (
                 <ArticleSwitchPlaceholder />
               ) : (
@@ -180,8 +179,6 @@ const LayoutBase = props => {
 /**
  * 首页
  * 是一个博客列表，嵌入一个Hero大图
- * @param {*} props
- * @returns
  */
 const LayoutIndex = props => {
   return <LayoutPostList {...props} className='pt-8' />
@@ -189,8 +186,6 @@ const LayoutIndex = props => {
 
 /**
  * 博客列表
- * @param {*} props
- * @returns
  */
 const LayoutPostList = props => {
   return (
@@ -207,8 +202,6 @@ const LayoutPostList = props => {
 
 /**
  * 搜索
- * @param {*} props
- * @returns
  */
 const LayoutSearch = props => {
   const { keyword } = props
@@ -248,8 +241,6 @@ const LayoutSearch = props => {
 
 /**
  * 归档
- * @param {*} props
- * @returns
  */
 const LayoutArchive = props => {
   const { archivePosts } = props
@@ -272,8 +263,6 @@ const LayoutArchive = props => {
 
 /**
  * 文章详情
- * @param {*} props
- * @returns
  */
 const LayoutSlug = props => {
   const { post, lock, validPassword } = props
@@ -297,10 +286,11 @@ const LayoutSlug = props => {
       )
     }
   }, [post])
+  
   return (
-    <>
-      {/* 🌟 核心修复 3：加入 !mt-0，消除任何潜在全局 CSS 带来的默认边距，保证绝对登顶对齐 */}
-      <div className='!mt-0 w-full lg:hover:shadow lg:border rounded-t-xl lg:rounded-xl lg:px-2 lg:py-4 bg-white dark:bg-hexo-black-gray dark:border-black article'>
+    /* 🌟 核心修复 2：将顶部的空标签 <> 替换为明确的 pt-8 容器，使其与主页 (LayoutPostList) 完全共享同一套对齐标准 */
+    <div className='pt-8'>
+      <div className='w-full lg:hover:shadow lg:border rounded-t-xl lg:rounded-xl lg:px-2 lg:py-4 bg-white dark:bg-hexo-black-gray dark:border-black article'>
         {lock && <ArticleLock validPassword={validPassword} />}
 
         {!lock && post && (
@@ -333,26 +323,22 @@ const LayoutSlug = props => {
           </div>
         )}
       </div>
-    </>
+    </div>
   )
 }
 
 /**
  * 404
- * @param {*} props
- * @returns
  */
 const Layout404 = props => {
   const router = useRouter()
   const { locale } = useGlobal()
   useEffect(() => {
-    // 延时3秒如果加载失败就返回首页
     setTimeout(() => {
       if (isBrowser) {
         const article = document.querySelector('#article-wrapper #notion-article')
         if (!article) {
           router.push('/').then(() => {
-            // console.log('找不到页面', router.asPath)
           })
         }
       }
@@ -376,8 +362,6 @@ const Layout404 = props => {
 
 /**
  * 分类列表
- * @param {*} props
- * @returns
  */
 const LayoutCategoryIndex = props => {
   const { categoryOptions } = props
@@ -414,8 +398,6 @@ const LayoutCategoryIndex = props => {
 
 /**
  * 标签列表
- * @param {*} props
- * @returns
  */
 const LayoutTagIndex = props => {
   const { tagOptions } = props
