@@ -266,34 +266,40 @@ const Style = () => {
         );
       }
 
-      /* 🌟 1. 恢复 RSS 正常显示：去除所有多余的范围误伤，只对 H1-H3 标题进行强制靠左对齐 */
+      /* 强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素靠左对齐 */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
-      #theme-hexo #announcement-wrapper .notion-h1,
-      #theme-hexo #announcement-wrapper .notion-h2,
-      #theme-hexo #announcement-wrapper .notion-h3 {
+      #theme-hexo #announcement-wrapper h4,
+      #theme-hexo #announcement-wrapper p,
+      #theme-hexo #announcement-wrapper div,
+      #theme-hexo .notion-text h1,
+      #theme-hexo .notion-text h2,
+      #theme-hexo .notion-text h3,
+      #theme-hexo .notion-h1,
+      #theme-hexo .notion-h2,
+      #theme-hexo .notion-h3 {
         text-align: left !important;
       }
 
-      /* 🌟 2. 待办事项精细化排版：保持优雅小字号和右侧缩进 */
+      /* 🌟 1. 待办事项整体向右缩进，且字号变小、变得精致优雅 */
+      #theme-hexo #announcement-wrapper .notions-to-do,
       #theme-hexo #announcement-wrapper .notion-to-do {
         padding-left: 1.25rem !important;
+        font-size: 0.85rem !important;
       }
       #theme-hexo #announcement-wrapper .notion-to-do span {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 3. 神级精准分割线：直接在 Notice 的第 2 个大标题（Formula 1）正上方画线，绝对不影响第 3 个大标题（NBA） */
-      #theme-hexo #announcement-wrapper .notion-page > .notion-h3:nth-of-type(2) {
-        border-top: 1px solid var(--hexo-color-border) !important;
-        padding-top: 1.2rem !important;
-        margin-top: 1.2rem !important;
-      }
-
-      /* 防止用户在 Notion 里手动敲的分割线跑出来捣乱，强制隐藏 */
-      #theme-hexo #announcement-wrapper .notion-hr {
-        display: none !important;
+      /* 🌟 2. 强制渲染出高颜值的暗色分割线，解决之前分割线出不来的问题 */
+      #theme-hexo #announcement-wrapper hr,
+      #theme-hexo .notion-divider {
+        display: block !important;
+        height: 1px !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: none !important;
+        margin: 1.2rem 0 !important;
       }
 
       /* Custem */
