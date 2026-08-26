@@ -266,7 +266,7 @@ const Style = () => {
         );
       }
 
-      /* 🌟 1. 修复文章标题空白问题：完全移除了错误殃及 div 的规则，仅限定大标题靠左对齐，彻底释放 RSS 组件原本的排版能力！ */
+      /* 🌟 1. 恢复 RSS 正常显示：去除所有多余的范围误伤，只对 H1-H3 标题进行强制靠左对齐 */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
@@ -276,28 +276,23 @@ const Style = () => {
         text-align: left !important;
       }
 
-      /* 🌟 2. 待办事项精细化排版：依然保持优雅的小字号和右侧缩进 */
-      #theme-hexo #announcement-wrapper .notions-to-do,
+      /* 🌟 2. 待办事项精细化排版：保持优雅小字号和右侧缩进 */
       #theme-hexo #announcement-wrapper .notion-to-do {
         padding-left: 1.25rem !important;
-        font-size: 0.85rem !important;
-        text-align: left !important;
       }
       #theme-hexo #announcement-wrapper .notion-to-do span {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 3. 终极精准单分割线：直接命中 Notice 区域里的【第 2 个大标题】（即 Formula 1 标题），在它正上方画出精致线条。这确保了 NBA 不受影响！ */
-      #theme-hexo #announcement-wrapper h3:nth-of-type(2),
-      #theme-hexo #announcement-wrapper .notion-h3:nth-of-type(2) {
+      /* 🌟 3. 神级精准分割线：直接在 Notice 的第 2 个大标题（Formula 1）正上方画线，绝对不影响第 3 个大标题（NBA） */
+      #theme-hexo #announcement-wrapper .notion-page > .notion-h3:nth-of-type(2) {
         border-top: 1px solid var(--hexo-color-border) !important;
-        padding-top: 1.5rem !important;
-        margin-top: 1.5rem !important;
+        padding-top: 1.2rem !important;
+        margin-top: 1.2rem !important;
       }
 
-      /* 隐藏可能存在的 Notion 原生分割线，防止冲突或双黄线 */
-      #theme-hexo #announcement-wrapper hr,
-      #theme-hexo #announcement-wrapper .notion-divider {
+      /* 防止用户在 Notion 里手动敲的分割线跑出来捣乱，强制隐藏 */
+      #theme-hexo #announcement-wrapper .notion-hr {
         display: none !important;
       }
 
