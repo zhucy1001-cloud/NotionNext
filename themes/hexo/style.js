@@ -287,7 +287,7 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 核心强制渲染：直接将 Notion 自带的 hr 分隔线完美变成高级暗色细边框线 */
+      /* 🌟 完美的双分割线排版优化：让 Notion 自带的分割线（hr）呈现出极度精致统一的高级质感与呼吸间距 */
       #theme-hexo #announcement-wrapper hr,
       #theme-hexo #announcement-wrapper .notion-divider,
       #theme-hexo .notion-hr {
@@ -297,7 +297,7 @@ const Style = () => {
         background-color: var(--hexo-color-border) !important;
         border: none !important;
         margin: 1.2rem 0 !important;
-        opacity: 1 !important;
+        opacity: 0.85 !important;
         width: 100% !important;
       }
 
