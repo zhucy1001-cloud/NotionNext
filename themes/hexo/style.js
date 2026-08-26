@@ -260,7 +260,7 @@ const Style = () => {
           to bottom,
           rgba(0, 0, 0, 0.5) 0%,
           rgba(0, 0, 0, 0.2) 10%,
-          rgba(0, 0, 0, 0) 25%,
+          rgba(0, 0, 0, 0, 0) 25%,
           rgba(0, 0, 0, 0.2) 75%,
           rgba(0, 0, 0, 0.5) 100%
         );
@@ -292,24 +292,20 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 核心修复：直接将 Notion 页面里所有的 hr 分隔线或特定间距块强制渲染成和上方 Top Favorite 完全一致的高级细边框 */
-      #theme-hexo #announcement-wrapper hr,
-      #theme-hexo .notion-divider,
-      #theme-hexo #announcement-wrapper .notion-hr {
-        display: block !important;
-        visibility: visible !important;
-        height: 1px !important;
-        background-color: var(--hexo-color-border) !important;
-        border: none !important;
-        margin: 1.2rem 0 !important;
-        opacity: 1 !important;
+      /* 🌟 核心优化：清除上一次误加在标题下方的线，改为在每一个大标题（板块开头）的上方自动生成一条高级分割线（跳过第一块） */
+      #theme-hexo #announcement-wrapper .notion-h3 {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
       }
 
-      /* 备用大招：如果 Notion 里用的是空行或者其他区块作为分隔，这里直接给 Notice 内部带有标题的区块下方自动加上一致的边框样式 */
-      #theme-hexo #announcement-wrapper .notion-h3 {
-        border-bottom: 1px solid var(--hexo-color-border);
-        padding-bottom: 0.5rem;
-        margin-bottom: 0.75rem;
+      /* 让除了第一个标题（近期小目标）之外的后续大板块（如 F1、NBA）上方自动带有一条精致分割线与舒适间距 */
+      #theme-hexo #announcement-wrapper > .notion-text:not(:first-of-type) h3,
+      #theme-hexo #announcement-wrapper > .notion-h3:not(:first-of-type),
+      #theme-hexo #announcement-wrapper h3:not(:first-of-type) {
+        border-top: 1px solid var(--hexo-color-border) !important;
+        padding-top: 1.2rem !important;
+        margin-top: 1.2rem !important;
       }
 
       /* Custem */
