@@ -5,17 +5,23 @@ import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
 
 /**
- * 最新文章列表
- * @param posts 所有文章数据
- * @param sliceCount 截取展示的数量 默认6
+ * 改造版：侧边栏“置顶文章”模块（严格仅识别“置顶”标签）
+ * @param props 包含了父组件传下来的所有网站数据
  * @constructor
  */
-const LatestPostsGroup = ({ latestPosts, siteInfo }) => {
-  // 获取当前路径
+const LatestPostsGroup = (props) => {
+  const { posts, latestPosts, siteInfo } = props
   const currentPath = useRouter().asPath
   const { locale } = useGlobal()
 
-  if (!latestPosts) {
+  // 1. 筛选逻辑：严格只捕捉打上了 '置顶' 标签的文章
+  const sourcePosts = posts || latestPosts || []
+  const favoritePosts = sourcePosts.filter(post => 
+    post?.tags && post.tags.includes('置顶')
+  ).slice(0, 6) // 最多显示前 6 篇
+
+  // 如果没有置顶文章，模块自动隐藏
+  if (!favoritePosts || favoritePosts.length === 0) {
     return <></>
   }
 
@@ -23,11 +29,13 @@ const LatestPostsGroup = ({ latestPosts, siteInfo }) => {
     <>
       <div className=' mb-2 px-1 flex flex-nowrap justify-between'>
         <div>
-          <i className='mr-2 fas fas fa-history' />
-          {locale.COMMON.LATEST_POSTS}
+          {/* 2. 修改 UI：换成了经典的置顶图钉图标 */}
+          <i className='mr-2 fas fa-thumbtack text-red-500' />
+          置顶文章
         </div>
       </div>
-      {latestPosts.map(post => {
+      
+      {favoritePosts.map(post => {
         const headerImage = post?.pageCoverThumbnail
           ? post.pageCoverThumbnail
           : siteInfo?.pageCover
