@@ -266,14 +266,11 @@ const Style = () => {
         );
       }
 
-      /* 精准限定：只让 Notice 模块内部的标题靠左对齐，绝不误伤其他 div 元素 */
-      #theme-hexo #announcement-wrapper h1,
-      #theme-hexo #announcement-wrapper h2,
-      #theme-hexo #announcement-wrapper h3,
-      #theme-hexo #announcement-wrapper h4,
-      #theme-hexo .notion-h1,
-      #theme-hexo .notion-h2,
-      #theme-hexo .notion-h3 {
+      /* 🌟 修复一：文本靠左对齐，去除 div 选择器，绝不误伤 RSS 模块导致标题空白 */
+      #theme-hexo #announcement-wrapper .notion-h1,
+      #theme-hexo #announcement-wrapper .notion-h2,
+      #theme-hexo #announcement-wrapper .notion-h3,
+      #theme-hexo #announcement-wrapper .notion-text {
         text-align: left !important;
       }
 
@@ -287,18 +284,26 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 完美的分割线优化：保留你在近期小目标下方手动加的分割线，并赋予其高级暗色质感与完美间距 */
+      /* 🌟 修复二：极其精准的单分割线。自动寻找 Notice 里的板块结构画线，无需去 Notion 操作 */
+      /* 1. 先隐藏 Notion 里面可能残留的手动分割线，防止冲突 */
       #theme-hexo #announcement-wrapper hr,
-      #theme-hexo #announcement-wrapper .notion-divider,
-      #theme-hexo .notion-hr {
-        display: block !important;
-        visibility: visible !important;
-        height: 1px !important;
-        background-color: var(--hexo-color-border) !important;
-        border: none !important;
-        margin: 1.4rem 0 !important;
-        opacity: 0.85 !important;
-        width: 100% !important;
+      #theme-hexo #announcement-wrapper .notion-divider {
+        display: none !important;
+      }
+
+      /* 2. 给除了第一块（近期小目标）以外的标题加上顶部分割线。兄弟选择器精准命中 F1 和 NBA */
+      #theme-hexo #announcement-wrapper .notion-h3 ~ .notion-h3,
+      #theme-hexo #announcement-wrapper h3 ~ h3 {
+        border-top: 1px solid var(--hexo-color-border) !important;
+        padding-top: 1.5rem !important; /* 线下方间距 */
+        margin-top: 1.5rem !important;  /* 线上方间距 */
+      }
+
+      /* 3. 取消第三块（NBA）及以后的分割线，实现【只有近期小目标下方有一条线】的绝对精准需求 */
+      #theme-hexo #announcement-wrapper .notion-h3 ~ .notion-h3 ~ .notion-h3,
+      #theme-hexo #announcement-wrapper h3 ~ h3 ~ h3 {
+        border-top: none !important;
+        padding-top: 1.5rem !important; /* 保持板块间距，但没有线 */
       }
 
       /* Custem */
