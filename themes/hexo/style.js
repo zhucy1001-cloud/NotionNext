@@ -287,13 +287,18 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 精准定位：只在“近期小目标”板块的底部（即紧接着的下一个大标题上方）画一条完美的分割线，其余地方（如 F1 和 NBA 之间）绝对不画线 */
-      #theme-hexo #announcement-wrapper h3:has-text("Formula 1"),
-      #theme-hexo #announcement-wrapper .notion-h3:has(> .notion-space-icon + span:contains("Formula 1")),
-      #theme-hexo #announcement-wrapper h3:nth-of-type(2) {
-        border-top: 1px solid var(--hexo-color-border) !important;
-        padding-top: 1.2rem !important;
-        margin-top: 1.2rem !important;
+      /* 🌟 核心强制渲染：直接将 Notion 自带的 hr 分隔线完美变成高级暗色细边框线 */
+      #theme-hexo #announcement-wrapper hr,
+      #theme-hexo #announcement-wrapper .notion-divider,
+      #theme-hexo .notion-hr {
+        display: block !important;
+        visibility: visible !important;
+        height: 1px !important;
+        background-color: var(--hexo-color-border) !important;
+        border: none !important;
+        margin: 1.2rem 0 !important;
+        opacity: 1 !important;
+        width: 100% !important;
       }
 
       /* Custem */
