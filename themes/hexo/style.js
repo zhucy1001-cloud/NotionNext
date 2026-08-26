@@ -266,32 +266,36 @@ const Style = () => {
         );
       }
 
-      /* 🌟 1. 精准修复排版：仅仅让 Notice 里的【标题】靠左对齐，去除了之前误伤 RSS 小组件的所有错误规则！ */
+      /* 🌟 1. 修复文章标题空白问题：完全移除了错误殃及 div 的规则，仅限定大标题靠左对齐，彻底释放 RSS 组件原本的排版能力！ */
+      #theme-hexo #announcement-wrapper h1,
+      #theme-hexo #announcement-wrapper h2,
+      #theme-hexo #announcement-wrapper h3,
       #theme-hexo #announcement-wrapper .notion-h1,
       #theme-hexo #announcement-wrapper .notion-h2,
       #theme-hexo #announcement-wrapper .notion-h3 {
         text-align: left !important;
       }
 
-      /* 🌟 2. 待办事项精细化排版：统一右侧缩进，并调整至优雅的小字号 */
+      /* 🌟 2. 待办事项精细化排版：依然保持优雅的小字号和右侧缩进 */
       #theme-hexo #announcement-wrapper .notions-to-do,
       #theme-hexo #announcement-wrapper .notion-to-do {
         padding-left: 1.25rem !important;
         font-size: 0.85rem !important;
+        text-align: left !important;
       }
       #theme-hexo #announcement-wrapper .notion-to-do span {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 3. 神级精准定位线：利用 CSS 兄弟选择器，仅在“紧随待办事项块之后”的大标题（即 Formula 1）顶部画出分割线。这绝对不会影响到下方的 NBA 模块。 */
-      #theme-hexo #announcement-wrapper .notion-to-do + .notion-h3,
-      #theme-hexo #announcement-wrapper .notion-list + .notion-h3 {
-        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+      /* 🌟 3. 终极精准单分割线：直接命中 Notice 区域里的【第 2 个大标题】（即 Formula 1 标题），在它正上方画出精致线条。这确保了 NBA 不受影响！ */
+      #theme-hexo #announcement-wrapper h3:nth-of-type(2),
+      #theme-hexo #announcement-wrapper .notion-h3:nth-of-type(2) {
+        border-top: 1px solid var(--hexo-color-border) !important;
         padding-top: 1.5rem !important;
-        margin-top: 1.2rem !important;
+        margin-top: 1.5rem !important;
       }
 
-      /* 隐藏所有你在 Notion 后台手动敲进去的冗余分割线，保持画面彻底干净 */
+      /* 隐藏可能存在的 Notion 原生分割线，防止冲突或双黄线 */
       #theme-hexo #announcement-wrapper hr,
       #theme-hexo #announcement-wrapper .notion-divider {
         display: none !important;
