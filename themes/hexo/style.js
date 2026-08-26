@@ -266,23 +266,18 @@ const Style = () => {
         );
       }
 
-      /* 强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素靠左对齐 */
+      /* 🌟 1. 安全且精准的标题左对齐（绝对不碰任何通用 div 或 RSS 容器，保护文章标题完整呈现） */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
       #theme-hexo #announcement-wrapper h4,
-      #theme-hexo #announcement-wrapper p,
-      #theme-hexo #announcement-wrapper div,
-      #theme-hexo .notion-text h1,
-      #theme-hexo .notion-text h2,
-      #theme-hexo .notion-text h3,
-      #theme-hexo .notion-h1,
-      #theme-hexo .notion-h2,
-      #theme-hexo .notion-h3 {
+      #theme-hexo #announcement-wrapper .notion-h1,
+      #theme-hexo #announcement-wrapper .notion-h2,
+      #theme-hexo #announcement-wrapper .notion-h3 {
         text-align: left !important;
       }
 
-      /* 🌟 1. 待办事项整体向右缩进，且字号变小、变得精致优雅 */
+      /* 🌟 2. 待办事项精细化排版（缩进与小字号） */
       #theme-hexo #announcement-wrapper .notions-to-do,
       #theme-hexo #announcement-wrapper .notion-to-do {
         padding-left: 1.25rem !important;
@@ -292,14 +287,20 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 2. 强制渲染出高颜值的暗色分割线，解决之前分割线出不来的问题 */
+      /* 🌟 3. 极简且完美的分割线控制。删除了所有复杂的干扰逻辑。
+         现在的规则是：只要你在 Notion 里敲出了分割线，就统一赋予高级的边距和颜色。
+         （因为你已经把不需要的分割线都删掉了，所以这里只会渲染你留在“3. 没想好”下方的那唯一一条线！） */
       #theme-hexo #announcement-wrapper hr,
-      #theme-hexo .notion-divider {
+      #theme-hexo #announcement-wrapper .notion-divider,
+      #theme-hexo #announcement-wrapper .notion-hr {
         display: block !important;
+        visibility: visible !important;
         height: 1px !important;
-        background-color: rgba(255, 255, 255, 0.1) !important;
+        background-color: var(--hexo-color-border) !important;
         border: none !important;
-        margin: 1.2rem 0 !important;
+        margin: 1.5rem 0 !important;
+        opacity: 0.85 !important;
+        width: 100% !important;
       }
 
       /* Custem */
