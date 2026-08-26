@@ -266,7 +266,7 @@ const Style = () => {
         );
       }
 
-      /* 🌟 核心修复：强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素全局靠左对齐，解决居中偏移 */
+      /* 强制侧边栏 Notice 模块内部的所有标题、文本及 Notion 元素靠左对齐 */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
@@ -280,6 +280,20 @@ const Style = () => {
       #theme-hexo .notion-h2,
       #theme-hexo .notion-h3 {
         text-align: left !important;
+      }
+
+      /* 🌟 1. 目标待办事项整体向右缩进一些，让层级感更舒服 */
+      #theme-hexo #announcement-wrapper .notions-to-do,
+      #theme-hexo #announcement-wrapper .notion-to-do {
+        padding-left: 1.25rem !important; /* 你可以根据喜好修改这个数值，比如 1rem 或 1.5rem */
+      }
+
+      /* 🌟 2. 在各个板块之间加入精致的暗色分割线，上下留出舒适的间距 */
+      #theme-hexo #announcement-wrapper hr,
+      #theme-hexo .notion-divider {
+        border: none !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important; /* 使用半透明白色，完美适配暗色卡片 */
+        margin: 1.5rem 0 !important;
       }
 
       /* Custem */
