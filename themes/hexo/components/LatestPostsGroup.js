@@ -4,7 +4,7 @@ import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
 
 /**
- * 改造版：侧边栏“Top Favorite”模块 (终极像素级对齐版)
+ * 改造版：侧边栏“Top Favorite”模块 (现代 UI 升级版)
  */
 const LatestPostsGroup = (props) => {
   const { posts, latestPosts, siteInfo } = props
@@ -22,22 +22,16 @@ const LatestPostsGroup = (props) => {
   }
 
   return (
-    <details className="w-full group">
-      
-      {/* 🌟 终极修复：
-          1. 移除 mb-2：解决折叠状态下底部留白过多、垂直不居中的问题。
-          2. 移除 px-1，新增 p-0 m-0：强制抹除 summary 的所有默认偏移，实现与 Notice 的完美左对齐。
-      */}
-      <summary className="flex flex-nowrap items-center justify-between cursor-pointer list-none outline-none p-0 m-0 [&::-webkit-details-marker]:hidden">
-        <div>
-          <i className="mr-2 fas fa-thumbtack" />
+    <>
+      <div className='mb-2 px-1 flex flex-nowrap justify-between'>
+        <div className='font-medium dark:text-gray-200'>
+          <i className='mr-2 fas fa-thumbtack' />
           Top Favorite
         </div>
-        <i className="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-300 group-open:rotate-180" />
-      </summary>
-
-      {/* 🌟 补充调整：将留白转移到这里 (新增 mt-3)，保证展开后标题与列表有适当的呼吸空间 */}
-      <div className="overflow-y-auto pr-2 mt-3" style={{ maxHeight: '24.5rem' }}>
+      </div>
+      
+      {/* 滚动容器 */}
+      <div className='overflow-y-auto pr-2' style={{ maxHeight: '27rem' }}>
         {favoritePosts.map(post => {
           const headerImage = post?.pageCoverThumbnail
             ? post.pageCoverThumbnail
@@ -50,23 +44,29 @@ const LatestPostsGroup = (props) => {
               title={post.title}
               href={post?.href}
               passHref
-              className={'py-2 flex items-center justify-between group/item cursor-pointer border-b border-gray-200 dark:border-gray-800 last:border-0 last:pb-0'}
+              // 添加 group 类，用于触发整行的联动悬停效果
+              className={'my-4 flex items-center justify-between group cursor-pointer'}
             >
               
+              {/* 左侧文字区 */}
               <div className={'flex-1 pr-3 overflow-hidden ' + (selected ? 'text-indigo-400' : 'text-gray-600 dark:text-gray-300')}>
-                <div className='line-clamp-2 text-sm group-hover/item:text-indigo-400 transition-colors duration-200'>
+                {/* 标题：限制2行，悬停变色 */}
+                <div className='line-clamp-2 text-sm font-medium group-hover:text-indigo-400 transition-colors duration-200'>
                   {post.title}
                 </div>
-                <div className='text-xs text-gray-400 mt-0.5'>
+                {/* 日期：稍微调小字体，颜色变浅，拉开层级 */}
+                <div className='text-xs text-gray-400 mt-1'>
                   {post.lastEditedDay}
                 </div>
               </div>
 
-              <div className='w-12 h-12 overflow-hidden relative shrink-0 rounded-xl shadow-sm'>
+              {/* 右侧图片区：改为正方形(w-14 h-14) + 大圆角(rounded-xl) */}
+              <div className='w-14 h-14 overflow-hidden relative shrink-0 rounded-xl shadow-sm'>
                 <LazyImage
                   alt={post?.title}
                   src={`${headerImage}`}
-                  className='object-cover w-full h-full group-hover/item:scale-110 transition-transform duration-500'
+                  // 图片悬停放大效果 (group-hover:scale-110)
+                  className='object-cover w-full h-full group-hover:scale-110 transition-transform duration-500'
                 />
               </div>
 
@@ -74,7 +74,7 @@ const LatestPostsGroup = (props) => {
           )
         })}
       </div>
-    </details>
+    </>
   )
 }
 export default LatestPostsGroup
