@@ -266,7 +266,7 @@ const Style = () => {
         );
       }
 
-      /* 强制侧边栏 Notice 模块内部的所有标题靠左对齐 */
+      /* 精准限定：只让 Notice 模块内部的标题靠左对齐，绝不误伤其他 div 元素 */
       #theme-hexo #announcement-wrapper h1,
       #theme-hexo #announcement-wrapper h2,
       #theme-hexo #announcement-wrapper h3,
@@ -287,7 +287,7 @@ const Style = () => {
         font-size: 0.85rem !important;
       }
 
-      /* 🌟 完美的双分割线排版优化：让 Notion 自带的分割线（hr）呈现出极度精致统一的高级质感与呼吸间距 */
+      /* 🌟 完美的分割线优化：保留你在近期小目标下方手动加的分割线，并赋予其高级暗色质感与完美间距 */
       #theme-hexo #announcement-wrapper hr,
       #theme-hexo #announcement-wrapper .notion-divider,
       #theme-hexo .notion-hr {
@@ -296,7 +296,7 @@ const Style = () => {
         height: 1px !important;
         background-color: var(--hexo-color-border) !important;
         border: none !important;
-        margin: 1.2rem 0 !important;
+        margin: 1.4rem 0 !important;
         opacity: 0.85 !important;
         width: 100% !important;
       }
