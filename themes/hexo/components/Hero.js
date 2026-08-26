@@ -15,7 +15,7 @@ const Hero = props => {
   const { locale } = useGlobal()
 
   // 1. 默认先使用博客配置的封面（防止网页刚打开时背景是黑的）
-  const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
+ // const [currentCover, setCurrentCover] = useState(siteInfo?.pageCover || '')
 
   // 🎯 2. 核心魔法：自动扫描 GitHub 文件夹里的图片
   useEffect(() => {
