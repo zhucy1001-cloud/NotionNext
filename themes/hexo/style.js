@@ -282,18 +282,24 @@ const Style = () => {
         text-align: left !important;
       }
 
-      /* 🌟 1. 目标待办事项整体向右缩进一些，让层级感更舒服 */
+      /* 🌟 1. 待办事项整体向右缩进，且字号变小、变得精致优雅 */
       #theme-hexo #announcement-wrapper .notions-to-do,
       #theme-hexo #announcement-wrapper .notion-to-do {
-        padding-left: 1.25rem !important; /* 你可以根据喜好修改这个数值，比如 1rem 或 1.5rem */
+        padding-left: 1.25rem !important;
+        font-size: 0.85rem !important;
+      }
+      #theme-hexo #announcement-wrapper .notion-to-do span {
+        font-size: 0.85rem !important;
       }
 
-      /* 🌟 2. 在各个板块之间加入精致的暗色分割线，上下留出舒适的间距 */
+      /* 🌟 2. 强制渲染出高颜值的暗色分割线，解决之前分割线出不来的问题 */
       #theme-hexo #announcement-wrapper hr,
       #theme-hexo .notion-divider {
+        display: block !important;
+        height: 1px !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
         border: none !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1) !important; /* 使用半透明白色，完美适配暗色卡片 */
-        margin: 1.5rem 0 !important;
+        margin: 1.2rem 0 !important;
       }
 
       /* Custem */
