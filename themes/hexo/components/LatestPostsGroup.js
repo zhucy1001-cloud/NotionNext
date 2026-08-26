@@ -4,7 +4,7 @@ import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
 
 /**
- * 改造版：侧边栏“Top Favorite”模块 (完美对齐 + 默认折叠 + 去除留白版)
+ * 改造版：侧边栏“Top Favorite”模块 (终极像素级对齐版)
  */
 const LatestPostsGroup = (props) => {
   const { posts, latestPosts, siteInfo } = props
@@ -22,11 +22,13 @@ const LatestPostsGroup = (props) => {
   }
 
   return (
-    // 简化结构，直接把 details 作为外层容器
     <details className="w-full group">
       
-      {/* 🌟 修复 1：去掉了所有自定义的字号和颜色代码，让它完全继承原生样式，与 Notice 百分百一致 */}
-      <summary className="mb-2 px-1 flex flex-nowrap items-center justify-between cursor-pointer list-none outline-none [&::-webkit-details-marker]:hidden">
+      {/* 🌟 终极修复：
+          1. 移除 mb-2：解决折叠状态下底部留白过多、垂直不居中的问题。
+          2. 移除 px-1，新增 p-0 m-0：强制抹除 summary 的所有默认偏移，实现与 Notice 的完美左对齐。
+      */}
+      <summary className="flex flex-nowrap items-center justify-between cursor-pointer list-none outline-none p-0 m-0 [&::-webkit-details-marker]:hidden">
         <div>
           <i className="mr-2 fas fa-thumbtack" />
           Top Favorite
@@ -34,8 +36,8 @@ const LatestPostsGroup = (props) => {
         <i className="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-300 group-open:rotate-180" />
       </summary>
 
-      {/* 🌟 修复 2：去掉了导致多余留白的 mt-2 */}
-      <div className="overflow-y-auto pr-2" style={{ maxHeight: '24.5rem' }}>
+      {/* 🌟 补充调整：将留白转移到这里 (新增 mt-3)，保证展开后标题与列表有适当的呼吸空间 */}
+      <div className="overflow-y-auto pr-2 mt-3" style={{ maxHeight: '24.5rem' }}>
         {favoritePosts.map(post => {
           const headerImage = post?.pageCoverThumbnail
             ? post.pageCoverThumbnail
@@ -48,7 +50,6 @@ const LatestPostsGroup = (props) => {
               title={post.title}
               href={post?.href}
               passHref
-              // 🌟 修复 2 补充：加入 last:pb-0，让最后一篇文章贴合底部，消除缝隙
               className={'py-2 flex items-center justify-between group/item cursor-pointer border-b border-gray-200 dark:border-gray-800 last:border-0 last:pb-0'}
             >
               
