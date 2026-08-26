@@ -128,10 +128,12 @@ const LayoutBase = props => {
               (JSON.parse(siteConfig('LAYOUT_SIDEBAR_REVERSE'))
                 ? 'flex-row-reverse'
                 : '') +
-              ' w-full mx-auto lg:flex lg:space-x-4 justify-center relative z-10'
+              /* 🌟 核心修复 1：加入 items-start 强制左侧主容器和右侧边栏在顶部水平对齐 */
+              ' w-full mx-auto lg:flex lg:space-x-4 justify-center relative z-10 items-start'
             }>
             <div
-              className={`${className || ''} w-full ${fullWidth ? '' : 'max-w-4xl'} h-full overflow-hidden`}>
+              /* 🌟 核心修复 2：移除了 h-full，防止高度拉伸引发的内部排版塌陷 */
+              className={`${className || ''} w-full ${fullWidth ? '' : 'max-w-4xl'} overflow-hidden`}>
               {showArticleSwitchPlaceholder ? (
                 <ArticleSwitchPlaceholder />
               ) : (
@@ -297,7 +299,8 @@ const LayoutSlug = props => {
   }, [post])
   return (
     <>
-      <div className='w-full lg:hover:shadow lg:border rounded-t-xl lg:rounded-xl lg:px-2 lg:py-4 bg-white dark:bg-hexo-black-gray dark:border-black article'>
+      {/* 🌟 核心修复 3：加入 !mt-0，消除任何潜在全局 CSS 带来的默认边距，保证绝对登顶对齐 */}
+      <div className='!mt-0 w-full lg:hover:shadow lg:border rounded-t-xl lg:rounded-xl lg:px-2 lg:py-4 bg-white dark:bg-hexo-black-gray dark:border-black article'>
         {lock && <ArticleLock validPassword={validPassword} />}
 
         {!lock && post && (
