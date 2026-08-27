@@ -36,32 +36,11 @@ export const BlogPostCardInfo = ({
               <span className='menu-link '>{post.title}</span>
             </SmartLink>
           </h2>
-
-          {/* 分类 */}
-          {post?.category && (
-            <div
-              className={`flex mt-2 items-center ${
-                showPreview ? 'justify-center' : 'justify-start'
-              } flex-wrap dark:text-gray-500 text-gray-400 `}>
-              <SmartLink
-                href={`/category/${post.category}`}
-                passHref
-                className='cursor-pointer font-light text-sm menu-link hover:text-indigo-700 dark:hover:text-indigo-400 transform'>
-                <i className='mr-1 far fa-folder' />
-                {post.category}
-              </SmartLink>
-
-              <TwikooCommentCount
-                className='text-sm hover:text-indigo-700 dark:hover:text-indigo-400'
-                post={post}
-              />
-            </div>
-          )}
         </header>
 
-        {/* 摘要 */}
+        {/* 摘要 (已改为 line-clamp-3 显示三行) */}
         {(!showPreview || showSummary) && !post.results && (
-          <main className='line-clamp-2 replace my-3 text-gray-700  dark:text-gray-300 text-md font-normal'>
+          <main className='line-clamp-3 replace my-3 text-gray-700  dark:text-gray-300 text-md font-normal'>
             {post.summary}
           </main>
         )}
@@ -84,17 +63,39 @@ export const BlogPostCardInfo = ({
       </div>
 
       <div>
-        {/* 日期标签 */}
-        <div className='text-gray-400 justify-between flex'>
-          {/* 日期 */}
-          <SmartLink
-            href={`/archive#${formatDateFmt(post?.publishDate, 'yyyy-MM')}`}
-            passHref
-            className='font-light menu-link cursor-pointer text-sm leading-4 mr-3'>
-            <i className='far fa-calendar-alt mr-1' />
-            {post?.publishDay || post.lastEditedDay}
-          </SmartLink>
+        {/* 底部信息：日期、分类与标签 */}
+        <div className='text-gray-400 justify-between flex items-center'>
+          
+          {/* 左侧：日期 + 分类 */}
+          <div className='flex items-center space-x-4'>
+            {/* 日期 */}
+            <SmartLink
+              href={`/archive#${formatDateFmt(post?.publishDate, 'yyyy-MM')}`}
+              passHref
+              className='font-light menu-link cursor-pointer text-sm leading-4'>
+              <i className='far fa-calendar-alt mr-1' />
+              {post?.publishDay || post.lastEditedDay}
+            </SmartLink>
 
+            {/* 分类 (已移动到这里) */}
+            {post?.category && (
+              <div className='flex items-center space-x-2'>
+                <SmartLink
+                  href={`/category/${post.category}`}
+                  passHref
+                  className='cursor-pointer font-light text-sm menu-link hover:text-indigo-700 dark:hover:text-indigo-400 transform'>
+                  <i className='mr-1 far fa-folder' />
+                  {post.category}
+                </SmartLink>
+                <TwikooCommentCount
+                  className='text-sm hover:text-indigo-700 dark:hover:text-indigo-400'
+                  post={post}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 右侧：标签 */}
           <div className='md:flex-nowrap flex-wrap md:justify-start inline-block'>
             <div>
               {' '}
