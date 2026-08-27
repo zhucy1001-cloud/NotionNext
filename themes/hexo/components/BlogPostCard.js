@@ -25,12 +25,13 @@ const BlogPostCard = ({ index, post, showSummary, siteInfo }) => {
       <div
         key={post.id}
         id='blog-post-card'
-        // --- 核心修改：使用高兼容性的 bg-opacity 和 backdrop-filter 语法 ---
+        /* 【核心修改 1：直接写死内联样式，确保苹果 Safari 和各种浏览器绝对生效】 */
+        style={{ backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}
+        /* 【核心修改 2：使用 ! 强制覆盖符号和 rgba 绝对色值，彻底干掉默认背景】 */
         className={`group md:h-56 w-full flex justify-between md:flex-row flex-col-reverse shadow-sm ${siteConfig('HEXO_POST_LIST_IMG_CROSSOVER', null, CONFIG) && index % 2 === 1 ? 'md:flex-row-reverse' : ''}
                     overflow-hidden rounded-xl 
-                    bg-white dark:bg-black bg-opacity-60 dark:bg-opacity-40 
-                    backdrop-filter backdrop-blur-lg 
-                    border border-gray-200 dark:border-gray-800 border-opacity-50 dark:border-opacity-50`}>
+                    !bg-[rgba(255,255,255,0.6)] dark:!bg-[rgba(15,17,24,0.6)] 
+                    border border-gray-200 dark:border-gray-800`}>
 
         {/* 文字内容 */}
         <BlogPostCardInfo
