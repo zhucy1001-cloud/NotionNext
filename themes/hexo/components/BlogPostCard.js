@@ -39,7 +39,7 @@ const BlogPostCard = ({ index, post, showSummary, siteInfo }) => {
 
         {/* 图片封面 */}
         {showPageCover && (
-          <div className='md:w-5/12 overflow-hidden'>
+          <div className='md:w-4/12 overflow-hidden'>
             <SmartLink href={post?.href}>
               <>
                 <LazyImage
