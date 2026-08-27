@@ -32,9 +32,12 @@ const Footer = ({ title }) => {
           <i className='fas fa-users' />
           <span className='px-1 busuanzi_value_site_uv'> </span>
         </span>
+        
+        {/* 这里修改为了固定文本 */}
         <h1 className='text-xs pt-4 text-light-400 dark:text-gray-400'>
-          {title} {siteConfig('BIO') && <>|</>} {siteConfig('BIO')}
+          | Evan Space |
         </h1>
+        
         <PoweredBy className='justify-center' />
       </span>
       <br />
