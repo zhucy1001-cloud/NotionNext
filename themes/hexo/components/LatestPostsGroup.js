@@ -3,15 +3,11 @@ import { useGlobal } from '@/lib/global'
 import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
 
-/**
- * 改造版：侧边栏“Top Favorite”模块 (与 Notice 统一视觉风格版)
- */
 const LatestPostsGroup = (props) => {
   const { posts, latestPosts, siteInfo } = props
   const currentPath = useRouter().asPath
   const { locale } = useGlobal()
 
-  // 严格只捕捉打上了 '置顶' 标签的文章
   const sourcePosts = posts || latestPosts || []
   const favoritePosts = sourcePosts.filter(post => 
     post?.tags && post.tags.includes('置顶')
@@ -23,16 +19,17 @@ const LatestPostsGroup = (props) => {
 
   return (
     <details className="w-full group">
-      {/* 🌟 样式统一：匹配 Notice 标题规范 (text-base, font-bold, 蓝色图标) */}
       <summary className="flex flex-nowrap items-center justify-between cursor-pointer list-none outline-none p-0 m-0 [&::-webkit-details-marker]:hidden">
+        {/* 与 Notice 完全相同的图标定宽和对齐逻辑 */}
         <div className="font-bold flex items-center text-base text-gray-800 dark:text-gray-100 tracking-wide">
-          <i className="mr-2.5 fas fa-thumbtack text-blue-500 text-base" />
+          <span className="w-5 inline-flex items-center justify-center mr-2 text-blue-500">
+            <i className="fas fa-thumbtack text-base" />
+          </span>
           <span>Top Favorite</span>
         </div>
         <i className="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-300 group-open:rotate-180" />
       </summary>
 
-      {/* 展开内容区域 */}
       <div className="overflow-y-auto pr-2 mt-3" style={{ maxHeight: '24.5rem' }}>
         {favoritePosts.map(post => {
           const headerImage = post?.pageCoverThumbnail
