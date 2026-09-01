@@ -9,21 +9,18 @@ const Announcement = ({ post, className }) => {
   const [loadingF1, setLoadingF1] = useState(true)
   const [loadingNBA, setLoadingNBA] = useState(true)
 
-  // 深度提取新闻图片（支持 media_thumbnail, enclosure, img 标签及多级查找）
+  // 深度提取图片链接
   const extractImage = (item) => {
     if (item.thumbnail && typeof item.thumbnail === 'string' && item.thumbnail.startsWith('http')) return item.thumbnail
     if (item.enclosure?.link && item.enclosure.link.startsWith('http')) return item.enclosure.link
-    
-    // 正则提取 description 或 content 中的第一张图片
     const content = item.content || item.description || ''
     const match = content.match(/<img[^>]+src=["']([^"']+)["']/i)
     if (match && match[1]) return match[1]
-    
     return null
   }
 
   useEffect(() => {
-    // 1. 抓取 Motorsport F1 (15 条)
+    // 1. 抓取 Motorsport F1
     const fetchF1 = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
@@ -43,10 +40,10 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. 抓取 Bleacher Report NBA (自带原生高清大图, 15 条)
+    // 2. 抓取 ClutchPoints NBA (稳定原生大图源)
     const fetchNBA = async () => {
       try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://bleacherreport.com/nba.rss'))
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://clutchpoints.com/feed'))
         const data = await res.json()
         if (data.status === 'ok' && data.items?.length > 0) {
           const list = data.items.slice(0, 15).map(item => ({
@@ -74,26 +71,28 @@ const Announcement = ({ post, className }) => {
         style={{ backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}
         className='dark:text-gray-300 border dark:border-gray-800 rounded-xl lg:p-5 p-4 !bg-[rgba(255,255,255,0.6)] dark:!bg-[rgba(15,17,24,0.6)] text-xs shadow-lg'
       >
-        {/* 1. Notice / 近期目标 区域 */}
+        {/* 1. Notice 标题与原 Notion 目标 */}
         {(post?.blockMap || siteInfo?.description) && (
-          <div className='mb-2'>
-            {/* 调大 Notice 标题与图标 */}
-            <div className='font-bold flex items-center mb-3 text-base text-gray-800 dark:text-gray-100 tracking-wide'>
-              <i className='mr-2.5 fas fa-bullhorn text-blue-500 text-base' />
+          <div className='mb-0'>
+            {/* 像素级对齐的 Notice 标题行 */}
+            <div className='font-bold flex items-center text-base text-gray-800 dark:text-gray-100 tracking-wide mb-2'>
+              <span className='w-5 inline-flex items-center justify-center mr-2 text-blue-500'>
+                <i className='fas fa-bullhorn text-base' />
+              </span>
               <span>Notice</span>
             </div>
-            
-            {/* 紧凑包裹层，移除 Notion 默认底部大边距 */}
-            <div className='text-gray-600 dark:text-gray-400 leading-relaxed overflow-hidden [&_.notion-page]:!pb-0 [&_.notion]:!pb-0 [&_.notion-page-content]:!pb-0 [&_.notion-list]:!mb-0'>
+
+            {/* 紧缩 Notion 冗余间距 */}
+            <div className='text-gray-600 dark:text-gray-400 leading-normal overflow-hidden [&_.notion-page]:!p-0 [&_.notion]:!p-0 [&_.notion-page-content]:!p-0 [&_.notion-list]:!mb-0 [&_.notion-to-do]:!mb-1.5 [&_.notion-text]:!mb-1'>
               {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
             </div>
           </div>
         )}
 
-        {/* 紧贴目标的分割线 */}
-        <hr className='border-t border-gray-200/60 dark:border-gray-700/60 my-3' />
+        {/* 紧致分割线 */}
+        <hr className='border-t border-gray-200/60 dark:border-gray-700/60 my-2.5' />
 
-        {/* 2. F1 赛车专栏 (15 条平滑滚动) */}
+        {/* 2. F1 赛车专栏 */}
         <div>
           <div className='font-bold flex items-center justify-between mb-2 text-xs'>
             <div className='flex items-center gap-1.5'>
@@ -136,15 +135,15 @@ const Announcement = ({ post, className }) => {
           )}
         </div>
 
-        {/* 分割线 */}
-        <hr className='border-t border-gray-200/60 dark:border-gray-700/60 my-3' />
+        {/* 紧致分割线 */}
+        <hr className='border-t border-gray-200/60 dark:border-gray-700/60 my-2.5' />
 
-        {/* 3. NBA 专栏 (Bleacher Report 高清实拍图, 15 条平滑滚动) */}
+        {/* 3. NBA 专栏 */}
         <div>
           <div className='font-bold flex items-center justify-between mb-2 text-xs'>
             <div className='flex items-center gap-1.5'>
               <span className='px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider'>NBA</span>
-              <span className='text-gray-800 dark:text-gray-200 font-semibold'>B/R 体育专栏</span>
+              <span className='text-gray-800 dark:text-gray-200 font-semibold'>ClutchPoints 专栏</span>
             </div>
             <span className='text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-normal'>LIVE</span>
           </div>
