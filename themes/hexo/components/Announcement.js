@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useGlobal } from '@/lib/global'
 import NotionPage from '@/components/NotionPage'
+import Card from '@/themes/hexo/components/Card'
 
 const Announcement = ({ post, className }) => {
   const { siteInfo } = useGlobal()
@@ -19,7 +20,7 @@ const Announcement = ({ post, className }) => {
   }
 
   useEffect(() => {
-    // 1. Motorsport F1
+    // 1. 抓取 Motorsport F1
     const fetchF1 = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
@@ -39,7 +40,7 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. ClutchPoints NBA
+    // 2. 抓取 ClutchPoints NBA
     const fetchNBA = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://clutchpoints.com/feed'))
@@ -64,26 +65,24 @@ const Announcement = ({ post, className }) => {
   }, [])
 
   return (
-    <div className={className}>
-      {/* 1. Notice 标题与原 Notion 内容 */}
+    <Card className={className}>
+      {/* 1. Notice 标题与 Notion 目标 */}
       {(post?.blockMap || siteInfo?.description) && (
-        <div>
-          {/* 与 Top Favorite 采用相同的对齐容器 */}
-          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2">
-            <span className="w-5 inline-flex items-center justify-center mr-2 text-blue-500">
-              <i className="fas fa-bullhorn text-base" />
-            </span>
+        <div className="w-full">
+          {/* 与 Top Favorite 共享完全一致的容器与内边距基准 */}
+          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5">
+            <i className="mr-2.5 fas fa-bullhorn text-blue-500 text-base" />
             <span>Notice</span>
           </div>
 
-          {/* 彻底抹除 Notion 文章渲染自带的下边距、行高与幽灵占位 */}
-          <div className="text-gray-600 dark:text-gray-400 leading-snug overflow-hidden [&_.notion-page]:!p-0 [&_.notion-page]:!min-h-0 [&_.notion]:!p-0 [&_.notion]:!min-h-0 [&_.notion-page-content]:!p-0 [&_.notion-page-content]:!min-h-0 [&_article]:!min-h-0 [&_article]:!p-0 [&_.notion-to-do]:!mb-1 [&_.notion-text]:!mb-1">
+          {/* 强制压缩 Notion 内部容器的默认高度和底部边距 */}
+          <div className="text-gray-600 dark:text-gray-400 leading-snug [&_.notion-page]:!p-0 [&_.notion-page]:!min-h-0 [&_.notion-page]:!h-auto [&_.notion]:!p-0 [&_.notion]:!min-h-0 [&_.notion]:!h-auto [&_.notion-page-content]:!p-0 [&_.notion-page-content]:!min-h-0 [&_.notion-page-content]:!h-auto [&_article]:!min-h-0 [&_article]:!h-auto [&_article]:!p-0 [&_.notion-to-do]:!mb-1.5 [&_.notion-text]:!mb-1">
             {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
           </div>
         </div>
       )}
 
-      {/* 紧贴近期的分割线 */}
+      {/* 紧致分割线 */}
       <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
       {/* 2. F1 赛车专栏 */}
@@ -129,7 +128,7 @@ const Announcement = ({ post, className }) => {
         )}
       </div>
 
-      {/* 紧贴专栏的分割线 */}
+      {/* 紧致分割线 */}
       <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
       {/* 3. NBA 专栏 */}
@@ -174,7 +173,7 @@ const Announcement = ({ post, className }) => {
           <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 
