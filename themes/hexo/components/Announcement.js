@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useGlobal } from '@/lib/global'
 import NotionPage from '@/components/NotionPage'
-import Parser from 'rss-parser'
 
 const Announcement = ({ post, className }) => {
   const { siteInfo } = useGlobal()
@@ -10,37 +9,52 @@ const Announcement = ({ post, className }) => {
   const [loadingF1, setLoadingF1] = useState(true)
   const [loadingNBA, setLoadingNBA] = useState(true)
 
-  const F1_FEED_URL = 'https://www.motorsport.com/rss/f1/news/'
-  const NBA_FEED_URL = 'https://www.espn.com/espn/rss/nba/news'
+  // 提取新闻正文中的第一张图片作为封面兜底
+  const extractImage = (item) => {
+    if (item.thumbnail && item.thumbnail.startsWith('http')) return item.thumbnail
+    if (item.enclosure?.link && item.enclosure.link.startsWith('http')) return item.enclosure.link
+    const match = item.description?.match(/<img[^>]+src=["']([^"']+)["']/i)
+    return match ? match[1] : null
+  }
 
   useEffect(() => {
-    const parser = new Parser({
-      timeout: 8000
-    })
-
-    // 独立抓取 F1
+    // 1. 抓取 Motorsport F1
     const fetchF1 = async () => {
       try {
-        const feed = await parser.parseURL(`https://api.allorigins.win/raw?url=${encodeURIComponent(F1_FEED_URL)}`)
-        if (feed?.items?.length > 0) {
-          setF1News(feed.items.slice(0, 4))
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
+        const data = await res.json()
+        if (data.status === 'ok' && data.items?.length > 0) {
+          const list = data.items.slice(0, 3).map(item => ({
+            title: item.title,
+            link: item.link,
+            pubDate: item.pubDate?.split(' ')[0] || '',
+            image: extractImage(item) || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=150&auto=format&fit=crop&q=60'
+          }))
+          setF1News(list)
         }
       } catch (err) {
-        console.error('F1 抓取失败:', err)
+        console.error('F1 获取失败:', err)
       } finally {
         setLoadingF1(false)
       }
     }
 
-    // 独立抓取 NBA
+    // 2. 抓取 ESPN NBA
     const fetchNBA = async () => {
       try {
-        const feed = await parser.parseURL(`https://api.allorigins.win/raw?url=${encodeURIComponent(NBA_FEED_URL)}`)
-        if (feed?.items?.length > 0) {
-          setNbaNews(feed.items.slice(0, 4))
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.espn.com/espn/rss/nba/news'))
+        const data = await res.json()
+        if (data.status === 'ok' && data.items?.length > 0) {
+          const list = data.items.slice(0, 3).map(item => ({
+            title: item.title,
+            link: item.link,
+            pubDate: item.pubDate?.split(' ')[0] || '',
+            image: extractImage(item) || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150&auto=format&fit=crop&q=60'
+          }))
+          setNbaNews(list)
         }
       } catch (err) {
-        console.error('NBA 抓取失败:', err)
+        console.error('NBA 获取失败:', err)
       } finally {
         setLoadingNBA(false)
       }
@@ -70,67 +84,93 @@ const Announcement = ({ post, className }) => {
           </div>
         )}
 
-        {/* 分割线 1 */}
+        {/* 分割线 */}
         <hr className='border-t border-gray-200/60 dark:border-gray-700/60 !my-3' />
 
-        {/* 2. F1 专栏 */}
+        {/* 2. F1 赛车专栏 (图文卡片) */}
         <div>
-          <div className='font-bold flex items-center justify-between mb-2.5 text-xs'>
+          <div className='font-bold flex items-center justify-between mb-3 text-xs'>
             <div className='flex items-center gap-1.5'>
-              <span className='text-red-500 font-black tracking-wider'>F1</span>
-              <span className='text-gray-700 dark:text-gray-300 font-medium'>Motorsport 专栏</span>
+              <span className='px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[10px] tracking-wider'>F1</span>
+              <span className='text-gray-800 dark:text-gray-200 font-semibold'>Motorsport 专栏</span>
             </div>
             <span className='text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal'>LIVE</span>
           </div>
 
           {loadingF1 ? (
             <div className='py-2 text-gray-400 text-[11px] flex items-center gap-1.5'>
-              <i className='fas fa-spinner fa-spin' /> 正在更新资讯...
+              <i className='fas fa-spinner fa-spin' /> 正在更新快讯...
             </div>
           ) : f1News.length > 0 ? (
-            <ul className='space-y-2'>
+            <div className='space-y-2.5'>
               {f1News.map((item, index) => (
-                <li key={index} className='line-clamp-2 leading-snug group'>
-                  <a href={item.link} target='_blank' rel='noopener noreferrer' className='flex items-start gap-1.5 text-gray-300 group-hover:text-red-400 transition-colors'>
-                    <span className='text-red-500 text-xs select-none'>›</span>
-                    <span>{item.title}</span>
-                  </a>
-                </li>
+                <a
+                  key={index}
+                  href={item.link}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='flex items-center gap-2.5 group p-1.5 -mx-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all'
+                >
+                  <img
+                    src={item.image}
+                    alt=''
+                    className='w-12 h-12 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300'
+                    loading='lazy'
+                  />
+                  <div className='flex-1 min-w-0'>
+                    <h4 className='line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]'>
+                      {item.title}
+                    </h4>
+                  </div>
+                </a>
               ))}
-            </ul>
+            </div>
           ) : (
             <div className='text-gray-400 py-1 text-[11px]'>暂无动态</div>
           )}
         </div>
 
-        {/* 分割线 2 */}
+        {/* 分割线 */}
         <hr className='border-t border-gray-200/60 dark:border-gray-700/60 !my-3' />
 
-        {/* 3. NBA 专栏 */}
+        {/* 3. NBA 专栏 (图文卡片) */}
         <div>
-          <div className='font-bold flex items-center justify-between mb-2.5 text-xs'>
+          <div className='font-bold flex items-center justify-between mb-3 text-xs'>
             <div className='flex items-center gap-1.5'>
-              <span className='text-blue-500 font-black tracking-wider'>NBA</span>
-              <span className='text-gray-700 dark:text-gray-300 font-medium'>ESPN 专栏</span>
+              <span className='px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider'>NBA</span>
+              <span className='text-gray-800 dark:text-gray-200 font-semibold'>ESPN 专栏</span>
             </div>
             <span className='text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-normal'>LIVE</span>
           </div>
 
           {loadingNBA ? (
             <div className='py-2 text-gray-400 text-[11px] flex items-center gap-1.5'>
-              <i className='fas fa-spinner fa-spin' /> 正在更新资讯...
+              <i className='fas fa-spinner fa-spin' /> 正在更新快讯...
             </div>
           ) : nbaNews.length > 0 ? (
-            <ul className='space-y-2'>
+            <div className='space-y-2.5'>
               {nbaNews.map((item, index) => (
-                <li key={index} className='line-clamp-2 leading-snug group'>
-                  <a href={item.link} target='_blank' rel='noopener noreferrer' className='flex items-start gap-1.5 text-gray-300 group-hover:text-blue-400 transition-colors'>
-                    <span className='text-blue-500 text-xs select-none'>›</span>
-                    <span>{item.title}</span>
-                  </a>
-                </li>
+                <a
+                  key={index}
+                  href={item.link}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='flex items-center gap-2.5 group p-1.5 -mx-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all'
+                >
+                  <img
+                    src={item.image}
+                    alt=''
+                    className='w-12 h-12 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300'
+                    loading='lazy'
+                  />
+                  <div className='flex-1 min-w-0'>
+                    <h4 className='line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]'>
+                      {item.title}
+                    </h4>
+                  </div>
+                </a>
               ))}
-            </ul>
+            </div>
           ) : (
             <div className='text-gray-400 py-1 text-[11px]'>暂无动态</div>
           )}
