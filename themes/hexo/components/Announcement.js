@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useGlobal } from '@/lib/global'
 import NotionPage from '@/components/NotionPage'
-import Card from '@/themes/hexo/components/Card'
 
 const Announcement = ({ post, className }) => {
   const { siteInfo } = useGlobal()
@@ -20,7 +19,7 @@ const Announcement = ({ post, className }) => {
   }
 
   useEffect(() => {
-    // 1. Motorsport F1 (15 条)
+    // 1. Motorsport F1
     const fetchF1 = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
@@ -40,7 +39,7 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. HoopsHype NBA 专栏 (15 条)
+    // 2. HoopsHype NBA
     const fetchNBA = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://hoopshype.com/feed/'))
@@ -65,21 +64,36 @@ const Announcement = ({ post, className }) => {
   }, [])
 
   return (
-    <Card className={className}>
+    <div className={className}>
+      {/* 压缩 Notion 页面渲染时的默认空白 */}
+      <style jsx global>{`
+        #notice-content .notion,
+        #notice-content .notion-page,
+        #notice-content .notion-page-content,
+        #notice-content article {
+          padding: 0 !important;
+          margin: 0 !important;
+          min-height: 0 !important;
+          height: auto !important;
+        }
+        #notice-content .notion-list,
+        #notice-content .notion-to-do,
+        #notice-content .notion-text {
+          margin-bottom: 4px !important;
+          padding-bottom: 0 !important;
+        }
+      `}</style>
+
       {/* 1. Notice 标题与 Notion 目标 */}
       {(post?.blockMap || siteInfo?.description) && (
         <div className="w-full">
-          {/* 像素级对准：使用与图钉相同的 mr-2 和 fa-fw 固定格宽，并精准向右补偿 7px 抹平 summary 隐式偏置 */}
-          <div 
-            style={{ paddingLeft: '7px' }}
-            className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5"
-          >
-            <i className="fas fa-bullhorn fa-fw text-blue-500 mr-2 text-base" />
+          {/* 与 Top Favorite 的 summary 完全一致的无偏移零内边距 */}
+          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 p-0 m-0">
+            <i className="fas fa-bullhorn text-blue-500 mr-2 text-base" />
             <span>Notice</span>
           </div>
 
-          {/* 压缩 Notion 容器自带边距 */}
-          <div className="text-gray-600 dark:text-gray-400 leading-snug [&_.notion-page]:!p-0 [&_.notion-page]:!min-h-0 [&_.notion-page]:!h-auto [&_.notion]:!p-0 [&_.notion]:!min-h-0 [&_.notion]:!h-auto [&_.notion-page-content]:!p-0 [&_.notion-page-content]:!min-h-0 [&_.notion-page-content]:!h-auto [&_article]:!min-h-0 [&_article]:!h-auto [&_article]:!p-0 [&_.notion-to-do]:!mb-1.5 [&_.notion-text]:!mb-1">
+          <div id="notice-content" className="text-gray-600 dark:text-gray-400 leading-snug overflow-hidden">
             {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
           </div>
         </div>
@@ -176,7 +190,7 @@ const Announcement = ({ post, className }) => {
           <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
         )}
       </div>
-    </Card>
+    </div>
   )
 }
 
