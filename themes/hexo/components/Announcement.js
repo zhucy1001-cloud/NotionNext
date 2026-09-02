@@ -19,7 +19,7 @@ const Announcement = ({ post, className }) => {
   }
 
   useEffect(() => {
-    // 1. Motorsport F1
+    // 1. Motorsport F1 抓取
     const fetchF1 = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
@@ -39,24 +39,30 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. HoopsHype NBA
+    // 2. NBA 抓取 (双通道容错保障)
     const fetchNBA = async () => {
-      try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://hoopshype.com/feed/'))
-        const data = await res.json()
-        if (data.status === 'ok' && data.items?.length > 0) {
-          const list = data.items.slice(0, 15).map(item => ({
-            title: item.title,
-            link: item.link,
-            image: extractImage(item) || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150&auto=format&fit=crop&q=60'
-          }))
-          setNbaNews(list)
+      const urls = [
+        'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://sports.yahoo.com/nba/rss.xml'),
+        'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://hoopshype.com/feed/')
+      ]
+      for (const url of urls) {
+        try {
+          const res = await fetch(url)
+          const data = await res.json()
+          if (data.status === 'ok' && data.items?.length > 0) {
+            const list = data.items.slice(0, 15).map(item => ({
+              title: item.title,
+              link: item.link,
+              image: extractImage(item) || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150&auto=format&fit=crop&q=60'
+            }))
+            setNbaNews(list)
+            break
+          }
+        } catch (e) {
+          // 备用源重试
         }
-      } catch (err) {
-        console.error('NBA 获取失败:', err)
-      } finally {
-        setLoadingNBA(false)
       }
+      setLoadingNBA(false)
     }
 
     fetchF1()
@@ -86,6 +92,18 @@ const Announcement = ({ post, className }) => {
             margin-bottom: 3px !important;
             padding-bottom: 0 !important;
           }
+
+          /* 平滑自动垂直向上滚动动画 */
+          @keyframes autoScrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+          }
+          .scroll-track {
+            animation: autoScrollUp 45s linear infinite;
+          }
+          .scroll-container:hover .scroll-track {
+            animation-play-state: paused;
+          }
         `}</style>
 
         {/* 1. Notice 标题与 Notion 目标 */}
@@ -107,7 +125,7 @@ const Announcement = ({ post, className }) => {
         {/* 紧致分割线 */}
         <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-        {/* 2. F1 赛车专栏 (标题改为可点击跳转) */}
+        {/* 2. F1 赛车专栏 (支持自动无缝向上滚动，鼠标悬浮暂停) */}
         <div>
           <a
             href="https://www.motorsport.com/f1/news/"
@@ -127,28 +145,31 @@ const Announcement = ({ post, className }) => {
               <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
             </div>
           ) : f1News.length > 0 ? (
-            <div className="space-y-1.5 max-h-[295px] overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-gray-400/30">
-              {f1News.map((item, index) => (
-                <a
-                  key={index}
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                >
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]">
-                      {item.title}
-                    </h4>
-                  </div>
-                </a>
-              ))}
+            <div className="scroll-container max-h-[295px] overflow-hidden relative select-none">
+              <div className="scroll-track space-y-1.5">
+                {/* 循环双倍渲染，实现无缝平滑连贯循环 */}
+                {[...f1News, ...f1News].map((item, index) => (
+                  <a
+                    key={index}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                  >
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]">
+                        {item.title}
+                      </h4>
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
@@ -158,7 +179,7 @@ const Announcement = ({ post, className }) => {
         {/* 紧致分割线 */}
         <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-        {/* 3. NBA 专栏 (标题改为可点击跳转) */}
+        {/* 3. NBA 专栏 (支持自动无缝向上滚动，鼠标悬浮暂停) */}
         <div>
           <a
             href="https://hoopshype.com/"
@@ -168,7 +189,7 @@ const Announcement = ({ post, className }) => {
           >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
-              <span className="text-gray-800 dark:text-gray-200 font-semibold group-hover/nba:text-blue-500 transition-colors">HoopsHype 专栏</span>
+              <span className="text-gray-800 dark:text-gray-200 font-semibold group-hover/nba:text-blue-500 transition-colors">NBA 专栏</span>
             </div>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </a>
@@ -178,28 +199,30 @@ const Announcement = ({ post, className }) => {
               <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
             </div>
           ) : nbaNews.length > 0 ? (
-            <div className="space-y-1.5 max-h-[295px] overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-gray-400/30">
-              {nbaNews.map((item, index) => (
-                <a
-                  key={index}
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                >
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]">
-                      {item.title}
-                    </h4>
-                  </div>
-                </a>
-              ))}
+            <div className="scroll-container max-h-[295px] overflow-hidden relative select-none">
+              <div className="scroll-track space-y-1.5">
+                {[...nbaNews, ...nbaNews].map((item, index) => (
+                  <a
+                    key={index}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                  >
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]">
+                        {item.title}
+                      </h4>
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
