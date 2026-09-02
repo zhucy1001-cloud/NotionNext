@@ -40,7 +40,7 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. HoopsHype NBA 纯正篮球新闻专栏 (15 条，自带高清赛场图)
+    // 2. HoopsHype NBA 专栏 (15 条)
     const fetchNBA = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://hoopshype.com/feed/'))
@@ -69,11 +69,12 @@ const Announcement = ({ post, className }) => {
       {/* 1. Notice 标题与 Notion 目标 */}
       {(post?.blockMap || siteInfo?.description) && (
         <div className="w-full">
-          {/* 像素级对齐容器：与 Top Favorite 一模一样的外框与间距 */}
-          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 pl-1">
-            <span className="w-6 h-6 inline-flex items-center justify-center mr-2 text-blue-500 shrink-0">
-              <i className="fas fa-bullhorn text-base" />
-            </span>
+          {/* 像素级对准：使用与图钉相同的 mr-2 和 fa-fw 固定格宽，并精准向右补偿 7px 抹平 summary 隐式偏置 */}
+          <div 
+            style={{ paddingLeft: '7px' }}
+            className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5"
+          >
+            <i className="fas fa-bullhorn fa-fw text-blue-500 mr-2 text-base" />
             <span>Notice</span>
           </div>
 
@@ -133,7 +134,7 @@ const Announcement = ({ post, className }) => {
       {/* 分割线 */}
       <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-      {/* 3. NBA 专栏 (LIVE 统一为红底红字) */}
+      {/* 3. NBA 专栏 */}
       <div>
         <div className="flex items-center justify-between mb-2 text-xs font-bold">
           <div className="flex items-center gap-1.5">
