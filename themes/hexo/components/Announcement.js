@@ -91,10 +91,10 @@ const Announcement = ({ post, className }) => {
         {/* 1. Notice 标题与 Notion 目标 */}
         {(post?.blockMap || siteInfo?.description) && (
           <div className="w-full">
-            {/* 像素级垂直居中行：严格统一高度与垂直居中轴线 */}
+            {/* 像素级对齐行：喇叭图标精准向上移 3px 达到完美水平中心线平齐 */}
             <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 leading-none">
               <span className="w-5 h-5 inline-flex items-center justify-center mr-2 text-blue-500 shrink-0">
-                <i className="fas fa-bullhorn text-sm relative -top-[1.5px]" />
+                <i className="fas fa-bullhorn text-sm relative -top-[3px]" />
               </span>
               <span className="leading-none select-none">Notice</span>
             </div>
