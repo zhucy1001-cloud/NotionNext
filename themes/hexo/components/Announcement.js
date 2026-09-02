@@ -18,6 +18,22 @@ const Announcement = ({ post, className }) => {
     return null
   }
 
+  // 时间格式化：将 RSS 时间转换为 MM-DD HH:mm
+  const formatTime = (dateStr) => {
+    if (!dateStr) return ''
+    try {
+      const d = new Date(dateStr.replace(/-/g, '/')) // 兼容 Safari
+      if (isNaN(d.getTime())) return dateStr.slice(5, 16)
+      const month = (d.getMonth() + 1).toString().padStart(2, '0')
+      const day = d.getDate().toString().padStart(2, '0')
+      const hours = d.getHours().toString().padStart(2, '0')
+      const minutes = d.getMinutes().toString().padStart(2, '0')
+      return `${month}-${day} ${hours}:${minutes}`
+    } catch (e) {
+      return dateStr.slice(5, 16)
+    }
+  }
+
   useEffect(() => {
     // 1. Motorsport F1 抓取
     const fetchF1 = async () => {
@@ -28,7 +44,8 @@ const Announcement = ({ post, className }) => {
           const list = data.items.slice(0, 15).map(item => ({
             title: item.title,
             link: item.link,
-            image: extractImage(item) || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=150&auto=format&fit=crop&q=60'
+            image: extractImage(item) || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=150&auto=format&fit=crop&q=60',
+            time: formatTime(item.pubDate) // 增加时间字段
           }))
           setF1News(list)
         }
@@ -39,7 +56,7 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. NBA 抓取 (双通道容错保障)
+    // 2. NBA 抓取
     const fetchNBA = async () => {
       const urls = [
         'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://sports.yahoo.com/nba/rss.xml'),
@@ -53,13 +70,14 @@ const Announcement = ({ post, className }) => {
             const list = data.items.slice(0, 15).map(item => ({
               title: item.title,
               link: item.link,
-              image: extractImage(item) || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150&auto=format&fit=crop&q=60'
+              image: extractImage(item) || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150&auto=format&fit=crop&q=60',
+              time: formatTime(item.pubDate) // 增加时间字段
             }))
             setNbaNews(list)
             break
           }
         } catch (e) {
-          // 备用源重试
+          // 容错继续请求下一个
         }
       }
       setLoadingNBA(false)
@@ -93,7 +111,6 @@ const Announcement = ({ post, className }) => {
             padding-bottom: 0 !important;
           }
 
-          /* 平滑自动垂直向上滚动动画 */
           @keyframes autoScrollUp {
             0% { transform: translateY(0); }
             100% { transform: translateY(-50%); }
@@ -124,7 +141,6 @@ const Announcement = ({ post, className }) => {
 
         {/* 2. F1 赛车专栏 */}
         <div className="mb-4">
-          {/* F1 标题栏 */}
           <a
             href="https://www.motorsport.com/f1/news/"
             target="_blank"
@@ -138,8 +154,8 @@ const Announcement = ({ post, className }) => {
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </a>
 
-          {/* 分割线下移至 F1 标题正下方 */}
-          <hr className="border-t border-gray-200/60 dark:border-gray-700/60 mt-2 mb-2.5" />
+          {/* 缩小顶部边距 (mt-1)，增大底部边距 (mb-3.5)，使分割线贴近标题 */}
+          <hr className="border-t border-gray-200/60 dark:border-gray-700/60 mt-1 mb-3.5" />
 
           {loadingF1 ? (
             <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
@@ -147,7 +163,7 @@ const Announcement = ({ post, className }) => {
             </div>
           ) : f1News.length > 0 ? (
             <div className="scroll-container max-h-[295px] overflow-hidden relative select-none">
-              <div className="scroll-track space-y-1.5">
+              <div className="scroll-track space-y-2">
                 {[...f1News, ...f1News].map((item, index) => (
                   <a
                     key={index}
@@ -162,10 +178,16 @@ const Announcement = ({ post, className }) => {
                       className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]">
                         {item.title}
                       </h4>
+                      {/* 时间显示行 */}
+                      {item.time && (
+                        <span className="text-[9.5px] text-gray-400/80 dark:text-gray-500 mt-1 font-mono">
+                          {item.time}
+                        </span>
+                      )}
                     </div>
                   </a>
                 ))}
@@ -178,7 +200,6 @@ const Announcement = ({ post, className }) => {
 
         {/* 3. NBA 专栏 */}
         <div>
-          {/* NBA 标题栏 */}
           <a
             href="https://hoopshype.com/"
             target="_blank"
@@ -192,8 +213,8 @@ const Announcement = ({ post, className }) => {
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </a>
 
-          {/* 分割线下移至 NBA 标题正下方 */}
-          <hr className="border-t border-gray-200/60 dark:border-gray-700/60 mt-2 mb-2.5" />
+          {/* 缩小顶部边距 (mt-1)，增大底部边距 (mb-3.5)，使分割线贴近标题 */}
+          <hr className="border-t border-gray-200/60 dark:border-gray-700/60 mt-1 mb-3.5" />
 
           {loadingNBA ? (
             <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
@@ -201,7 +222,7 @@ const Announcement = ({ post, className }) => {
             </div>
           ) : nbaNews.length > 0 ? (
             <div className="scroll-container max-h-[295px] overflow-hidden relative select-none">
-              <div className="scroll-track space-y-1.5">
+              <div className="scroll-track space-y-2">
                 {[...nbaNews, ...nbaNews].map((item, index) => (
                   <a
                     key={index}
@@ -216,10 +237,16 @@ const Announcement = ({ post, className }) => {
                       className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]">
                         {item.title}
                       </h4>
+                      {/* 时间显示行 */}
+                      {item.time && (
+                        <span className="text-[9.5px] text-gray-400/80 dark:text-gray-500 mt-1 font-mono">
+                          {item.time}
+                        </span>
+                      )}
                     </div>
                   </a>
                 ))}
