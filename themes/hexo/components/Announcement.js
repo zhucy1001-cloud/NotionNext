@@ -20,7 +20,7 @@ const Announcement = ({ post, className }) => {
   }
 
   useEffect(() => {
-    // 1. 抓取 Motorsport F1
+    // 1. Motorsport F1 (15 条)
     const fetchF1 = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
@@ -40,10 +40,10 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. 抓取 ClutchPoints NBA
+    // 2. HoopsHype NBA 纯正篮球新闻专栏 (15 条，自带高清赛场图)
     const fetchNBA = async () => {
       try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://clutchpoints.com/feed'))
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://hoopshype.com/feed/'))
         const data = await res.json()
         if (data.status === 'ok' && data.items?.length > 0) {
           const list = data.items.slice(0, 15).map(item => ({
@@ -69,20 +69,22 @@ const Announcement = ({ post, className }) => {
       {/* 1. Notice 标题与 Notion 目标 */}
       {(post?.blockMap || siteInfo?.description) && (
         <div className="w-full">
-          {/* 与 Top Favorite 共享完全一致的容器与内边距基准 */}
+          {/* 像素级对齐容器：与 Top Favorite 一模一样的外框与间距 */}
           <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5">
-            <i className="mr-2.5 fas fa-bullhorn text-blue-500 text-base" />
+            <span className="w-6 h-6 inline-flex items-center justify-center mr-2 text-blue-500 shrink-0">
+              <i className="fas fa-bullhorn text-base" />
+            </span>
             <span>Notice</span>
           </div>
 
-          {/* 强制压缩 Notion 内部容器的默认高度和底部边距 */}
+          {/* 压缩 Notion 容器自带边距 */}
           <div className="text-gray-600 dark:text-gray-400 leading-snug [&_.notion-page]:!p-0 [&_.notion-page]:!min-h-0 [&_.notion-page]:!h-auto [&_.notion]:!p-0 [&_.notion]:!min-h-0 [&_.notion]:!h-auto [&_.notion-page-content]:!p-0 [&_.notion-page-content]:!min-h-0 [&_.notion-page-content]:!h-auto [&_article]:!min-h-0 [&_article]:!h-auto [&_article]:!p-0 [&_.notion-to-do]:!mb-1.5 [&_.notion-text]:!mb-1">
             {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
           </div>
         </div>
       )}
 
-      {/* 紧致分割线 */}
+      {/* 分割线 */}
       <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
       {/* 2. F1 赛车专栏 */}
@@ -128,17 +130,17 @@ const Announcement = ({ post, className }) => {
         )}
       </div>
 
-      {/* 紧致分割线 */}
+      {/* 分割线 */}
       <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-      {/* 3. NBA 专栏 */}
+      {/* 3. NBA 专栏 (LIVE 统一为红底红字) */}
       <div>
         <div className="flex items-center justify-between mb-2 text-xs font-bold">
           <div className="flex items-center gap-1.5">
             <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
-            <span className="text-gray-800 dark:text-gray-200 font-semibold">ClutchPoints 专栏</span>
+            <span className="text-gray-800 dark:text-gray-200 font-semibold">HoopsHype 专栏</span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-normal">LIVE</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
         </div>
 
         {loadingNBA ? (
