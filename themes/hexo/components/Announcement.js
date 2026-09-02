@@ -91,7 +91,6 @@ const Announcement = ({ post, className }) => {
         {/* 1. Notice 标题与 Notion 目标 */}
         {(post?.blockMap || siteInfo?.description) && (
           <div className="w-full">
-            {/* 像素级对齐行：喇叭图标精准向上移 3px 达到完美水平中心线平齐 */}
             <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 leading-none">
               <span className="w-5 h-5 inline-flex items-center justify-center mr-2 text-blue-500 shrink-0">
                 <i className="fas fa-bullhorn text-sm relative -top-[3px]" />
@@ -108,15 +107,20 @@ const Announcement = ({ post, className }) => {
         {/* 紧致分割线 */}
         <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-        {/* 2. F1 赛车专栏 */}
+        {/* 2. F1 赛车专栏 (标题改为可点击跳转) */}
         <div>
-          <div className="flex items-center justify-between mb-2 text-xs font-bold">
+          <a
+            href="https://www.motorsport.com/f1/news/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between mb-2 text-xs font-bold group/f1 cursor-pointer"
+          >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[10px] tracking-wider">F1</span>
-              <span className="text-gray-800 dark:text-gray-200 font-semibold">Motorsport 专栏</span>
+              <span className="text-gray-800 dark:text-gray-200 font-semibold group-hover/f1:text-red-500 transition-colors">Motorsport 专栏</span>
             </div>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
-          </div>
+          </a>
 
           {loadingF1 ? (
             <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
@@ -154,15 +158,20 @@ const Announcement = ({ post, className }) => {
         {/* 紧致分割线 */}
         <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-        {/* 3. NBA 专栏 */}
+        {/* 3. NBA 专栏 (标题改为可点击跳转) */}
         <div>
-          <div className="flex items-center justify-between mb-2 text-xs font-bold">
+          <a
+            href="https://hoopshype.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between mb-2 text-xs font-bold group/nba cursor-pointer"
+          >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
-              <span className="text-gray-800 dark:text-gray-200 font-semibold">HoopsHype 专栏</span>
+              <span className="text-gray-800 dark:text-gray-200 font-semibold group-hover/nba:text-blue-500 transition-colors">HoopsHype 专栏</span>
             </div>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
-          </div>
+          </a>
 
           {loadingNBA ? (
             <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
