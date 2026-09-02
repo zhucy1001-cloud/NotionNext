@@ -18,11 +18,10 @@ const Announcement = ({ post, className }) => {
     return null
   }
 
-  // 时间格式化：将 RSS 时间转换为 MM-DD HH:mm
   const formatTime = (dateStr) => {
     if (!dateStr) return ''
     try {
-      const d = new Date(dateStr.replace(/-/g, '/')) // 兼容 Safari
+      const d = new Date(dateStr.replace(/-/g, '/')) 
       if (isNaN(d.getTime())) return dateStr.slice(5, 16)
       const month = (d.getMonth() + 1).toString().padStart(2, '0')
       const day = d.getDate().toString().padStart(2, '0')
@@ -35,7 +34,6 @@ const Announcement = ({ post, className }) => {
   }
 
   useEffect(() => {
-    // 1. Motorsport F1 抓取
     const fetchF1 = async () => {
       try {
         const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.motorsport.com/rss/f1/news/'))
@@ -56,7 +54,6 @@ const Announcement = ({ post, className }) => {
       }
     }
 
-    // 2. NBA 抓取
     const fetchNBA = async () => {
       const urls = [
         'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://sports.yahoo.com/nba/rss.xml'),
@@ -77,7 +74,6 @@ const Announcement = ({ post, className }) => {
             break
           }
         } catch (e) {
-          // 容错继续请求下一个
         }
       }
       setLoadingNBA(false)
@@ -92,7 +88,8 @@ const Announcement = ({ post, className }) => {
       <section
         id='announcement-wrapper'
         style={{ backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}
-        className='border dark:border-gray-800 rounded-xl p-5 !bg-[rgba(255,255,255,0.6)] dark:!bg-[rgba(15,17,24,0.6)] text-xs shadow-lg'
+        // 【核心修改】：采用 p-4 lg:p-6 响应式边距，抹平多端差异
+        className='border dark:border-gray-800 rounded-xl p-4 lg:p-6 !bg-[rgba(255,255,255,0.6)] dark:!bg-[rgba(15,17,24,0.6)] text-xs shadow-lg'
       >
         <style jsx global>{`
           #notice-content .notion,
@@ -126,14 +123,16 @@ const Announcement = ({ post, className }) => {
         {/* 1. Notice 标题与 Notion 目标 */}
         {(post?.blockMap || siteInfo?.description) && (
           <div className="w-full mb-4">
-            <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 leading-none">
+            {/* 【核心修改】：增加 -ml-1，让 Notice 在手机端精准左移 4px 对齐 Top Favorite */}
+            <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 leading-none -ml-1">
               <span className="w-5 h-5 inline-flex items-center justify-center mr-2 text-blue-500 shrink-0">
                 <i className="fas fa-bullhorn text-sm relative -top-[3px]" />
               </span>
               <span className="leading-none select-none">Notice</span>
             </div>
 
-            <div id="notice-content" className="text-gray-600 dark:text-gray-400 leading-snug overflow-hidden">
+            {/* 内容也同步向左贴近 */}
+            <div id="notice-content" className="text-gray-600 dark:text-gray-400 leading-snug overflow-hidden -ml-1">
               {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
             </div>
           </div>
@@ -141,12 +140,12 @@ const Announcement = ({ post, className }) => {
 
         {/* 2. F1 赛车专栏 */}
         <div className="mb-4">
-          {/* 将下边框直接写在 a 标签上，通过 pb-2 控制边距，实现精准贴合 */}
+          {/* 【核心修改】：使用 -mx-1 px-1 使标题左移对齐的同时，底部边框不会缩短 */}
           <a
             href="https://www.motorsport.com/f1/news/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between text-xs font-bold group/f1 cursor-pointer border-b border-gray-200/60 dark:border-gray-700/60 pb-2 mb-2.5"
+            className="flex items-center justify-between text-xs font-bold group/f1 cursor-pointer border-b border-gray-200/60 dark:border-gray-700/60 pb-2 mb-2.5 -mx-1 px-1"
           >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[10px] tracking-wider">F1</span>
@@ -156,7 +155,7 @@ const Announcement = ({ post, className }) => {
           </a>
 
           {loadingF1 ? (
-            <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
+            <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5 -ml-1">
               <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
             </div>
           ) : f1News.length > 0 ? (
@@ -191,18 +190,18 @@ const Announcement = ({ post, className }) => {
               </div>
             </div>
           ) : (
-            <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
+            <div className="text-gray-400 py-1 text-[11px] -ml-1">暂无动态</div>
           )}
         </div>
 
         {/* 3. NBA 专栏 */}
         <div>
-          {/* 将下边框直接写在 a 标签上，通过 pb-2 控制边距，实现精准贴合 */}
+          {/* 【核心修改】：使用 -mx-1 px-1 左右拉伸对齐 */}
           <a
             href="https://hoopshype.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between text-xs font-bold group/nba cursor-pointer border-b border-gray-200/60 dark:border-gray-700/60 pb-2 mb-2.5"
+            className="flex items-center justify-between text-xs font-bold group/nba cursor-pointer border-b border-gray-200/60 dark:border-gray-700/60 pb-2 mb-2.5 -mx-1 px-1"
           >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
@@ -212,7 +211,7 @@ const Announcement = ({ post, className }) => {
           </a>
 
           {loadingNBA ? (
-            <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
+            <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5 -ml-1">
               <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
             </div>
           ) : nbaNews.length > 0 ? (
@@ -247,7 +246,7 @@ const Announcement = ({ post, className }) => {
               </div>
             </div>
           ) : (
-            <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
+            <div className="text-gray-400 py-1 text-[11px] -ml-1">暂无动态</div>
           )}
         </div>
       </section>
