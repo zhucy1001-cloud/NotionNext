@@ -45,7 +45,7 @@ const Announcement = ({ post, className }) => {
             title: item.title,
             link: item.link,
             image: extractImage(item) || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=150&auto=format&fit=crop&q=60',
-            time: formatTime(item.pubDate) // 增加时间字段
+            time: formatTime(item.pubDate)
           }))
           setF1News(list)
         }
@@ -71,7 +71,7 @@ const Announcement = ({ post, className }) => {
               title: item.title,
               link: item.link,
               image: extractImage(item) || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=150&auto=format&fit=crop&q=60',
-              time: formatTime(item.pubDate) // 增加时间字段
+              time: formatTime(item.pubDate)
             }))
             setNbaNews(list)
             break
@@ -141,11 +141,12 @@ const Announcement = ({ post, className }) => {
 
         {/* 2. F1 赛车专栏 */}
         <div className="mb-4">
+          {/* 将下边框直接写在 a 标签上，通过 pb-2 控制边距，实现精准贴合 */}
           <a
             href="https://www.motorsport.com/f1/news/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between text-xs font-bold group/f1 cursor-pointer"
+            className="flex items-center justify-between text-xs font-bold group/f1 cursor-pointer border-b border-gray-200/60 dark:border-gray-700/60 pb-2 mb-2.5"
           >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[10px] tracking-wider">F1</span>
@@ -153,9 +154,6 @@ const Announcement = ({ post, className }) => {
             </div>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </a>
-
-          {/* 缩小顶部边距 (mt-1)，增大底部边距 (mb-3.5)，使分割线贴近标题 */}
-          <hr className="border-t border-gray-200/60 dark:border-gray-700/60 mt-1 mb-3.5" />
 
           {loadingF1 ? (
             <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
@@ -182,7 +180,6 @@ const Announcement = ({ post, className }) => {
                       <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]">
                         {item.title}
                       </h4>
-                      {/* 时间显示行 */}
                       {item.time && (
                         <span className="text-[9.5px] text-gray-400/80 dark:text-gray-500 mt-1 font-mono">
                           {item.time}
@@ -200,11 +197,12 @@ const Announcement = ({ post, className }) => {
 
         {/* 3. NBA 专栏 */}
         <div>
+          {/* 将下边框直接写在 a 标签上，通过 pb-2 控制边距，实现精准贴合 */}
           <a
             href="https://hoopshype.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between text-xs font-bold group/nba cursor-pointer"
+            className="flex items-center justify-between text-xs font-bold group/nba cursor-pointer border-b border-gray-200/60 dark:border-gray-700/60 pb-2 mb-2.5"
           >
             <div className="flex items-center gap-1.5">
               <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
@@ -212,9 +210,6 @@ const Announcement = ({ post, className }) => {
             </div>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </a>
-
-          {/* 缩小顶部边距 (mt-1)，增大底部边距 (mb-3.5)，使分割线贴近标题 */}
-          <hr className="border-t border-gray-200/60 dark:border-gray-700/60 mt-1 mb-3.5" />
 
           {loadingNBA ? (
             <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
@@ -241,7 +236,6 @@ const Announcement = ({ post, className }) => {
                       <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]">
                         {item.title}
                       </h4>
-                      {/* 时间显示行 */}
                       {item.time && (
                         <span className="text-[9.5px] text-gray-400/80 dark:text-gray-500 mt-1 font-mono">
                           {item.time}
