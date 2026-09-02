@@ -65,131 +65,137 @@ const Announcement = ({ post, className }) => {
 
   return (
     <div className={className}>
-      {/* 压缩 Notion 页面渲染时的默认空白 */}
-      <style jsx global>{`
-        #notice-content .notion,
-        #notice-content .notion-page,
-        #notice-content .notion-page-content,
-        #notice-content article {
-          padding: 0 !important;
-          margin: 0 !important;
-          min-height: 0 !important;
-          height: auto !important;
-        }
-        #notice-content .notion-list,
-        #notice-content .notion-to-do,
-        #notice-content .notion-text {
-          margin-bottom: 4px !important;
-          padding-bottom: 0 !important;
-        }
-      `}</style>
+      {/* 恢复完整的毛玻璃外框，内边距锁定与 Top Favorite 统一为 p-5 */}
+      <section
+        id='announcement-wrapper'
+        style={{ backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}
+        className='border dark:border-gray-800 rounded-xl p-5 !bg-[rgba(255,255,255,0.6)] dark:!bg-[rgba(15,17,24,0.6)] text-xs shadow-lg'
+      >
+        <style jsx global>{`
+          #notice-content .notion,
+          #notice-content .notion-page,
+          #notice-content .notion-page-content,
+          #notice-content article {
+            padding: 0 !important;
+            margin: 0 !important;
+            min-height: 0 !important;
+            height: auto !important;
+          }
+          #notice-content .notion-list,
+          #notice-content .notion-to-do,
+          #notice-content .notion-text {
+            margin-bottom: 3px !important;
+            padding-bottom: 0 !important;
+          }
+        `}</style>
 
-      {/* 1. Notice 标题与 Notion 目标 */}
-      {(post?.blockMap || siteInfo?.description) && (
-        <div className="w-full">
-          {/* 与 Top Favorite 的 summary 完全一致的无偏移零内边距 */}
-          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 p-0 m-0">
-            <i className="fas fa-bullhorn text-blue-500 mr-2 text-base" />
-            <span>Notice</span>
-          </div>
+        {/* 1. Notice 标题与 Notion 目标 */}
+        {(post?.blockMap || siteInfo?.description) && (
+          <div className="w-full">
+            {/* 像素级对齐行 */}
+            <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5">
+              <i className="fas fa-bullhorn text-blue-500 mr-2.5 text-base" />
+              <span>Notice</span>
+            </div>
 
-          <div id="notice-content" className="text-gray-600 dark:text-gray-400 leading-snug overflow-hidden">
-            {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
+            <div id="notice-content" className="text-gray-600 dark:text-gray-400 leading-snug overflow-hidden">
+              {post?.blockMap ? <NotionPage post={post} /> : <p>{siteInfo?.description}</p>}
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* 分割线 */}
-      <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
-
-      {/* 2. F1 赛车专栏 */}
-      <div>
-        <div className="flex items-center justify-between mb-2 text-xs font-bold">
-          <div className="flex items-center gap-1.5">
-            <span className="px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[10px] tracking-wider">F1</span>
-            <span className="text-gray-800 dark:text-gray-200 font-semibold">Motorsport 专栏</span>
-          </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
-        </div>
-
-        {loadingF1 ? (
-          <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
-            <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
-          </div>
-        ) : f1News.length > 0 ? (
-          <div className="space-y-1.5 max-h-[295px] overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-gray-400/30">
-            {f1News.map((item, index) => (
-              <a
-                key={index}
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-              >
-                <img
-                  src={item.image}
-                  alt=""
-                  className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                />
-                <div className="flex-1 min-w-0">
-                  <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]">
-                    {item.title}
-                  </h4>
-                </div>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
         )}
-      </div>
 
-      {/* 分割线 */}
-      <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
+        {/* 紧致分割线 */}
+        <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
 
-      {/* 3. NBA 专栏 */}
-      <div>
-        <div className="flex items-center justify-between mb-2 text-xs font-bold">
-          <div className="flex items-center gap-1.5">
-            <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
-            <span className="text-gray-800 dark:text-gray-200 font-semibold">HoopsHype 专栏</span>
+        {/* 2. F1 赛车专栏 */}
+        <div>
+          <div className="flex items-center justify-between mb-2 text-xs font-bold">
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[10px] tracking-wider">F1</span>
+              <span className="text-gray-800 dark:text-gray-200 font-semibold">Motorsport 专栏</span>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
+
+          {loadingF1 ? (
+            <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
+              <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
+            </div>
+          ) : f1News.length > 0 ? (
+            <div className="space-y-1.5 max-h-[295px] overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-gray-400/30">
+              {f1News.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                >
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors leading-snug font-medium text-[11px]">
+                      {item.title}
+                    </h4>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
+          )}
         </div>
 
-        {loadingNBA ? (
-          <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
-            <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
+        {/* 紧致分割线 */}
+        <hr className="border-t border-gray-200/60 dark:border-gray-700/60 my-3" />
+
+        {/* 3. NBA 专栏 */}
+        <div>
+          <div className="flex items-center justify-between mb-2 text-xs font-bold">
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-black text-[10px] tracking-wider">NBA</span>
+              <span className="text-gray-800 dark:text-gray-200 font-semibold">HoopsHype 专栏</span>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-normal">LIVE</span>
           </div>
-        ) : nbaNews.length > 0 ? (
-          <div className="space-y-1.5 max-h-[295px] overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-gray-400/30">
-            {nbaNews.map((item, index) => (
-              <a
-                key={index}
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-              >
-                <img
-                  src={item.image}
-                  alt=""
-                  className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                />
-                <div className="flex-1 min-w-0">
-                  <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]">
-                    {item.title}
-                  </h4>
-                </div>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
-        )}
-      </div>
+
+          {loadingNBA ? (
+            <div className="py-2 text-gray-400 text-[11px] flex items-center gap-1.5">
+              <i className="fas fa-spinner fa-spin" /> 正在更新快讯...
+            </div>
+          ) : nbaNews.length > 0 ? (
+            <div className="space-y-1.5 max-h-[295px] overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-gray-400/30">
+              {nbaNews.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 group p-1.5 -mx-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                >
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="w-11 h-11 object-cover rounded-md flex-shrink-0 bg-gray-200 dark:bg-gray-800 border border-black/5 dark:border-white/5 group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="line-clamp-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-500 transition-colors leading-snug font-medium text-[11px]">
+                      {item.title}
+                    </h4>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-400 py-1 text-[11px]">暂无动态</div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }
