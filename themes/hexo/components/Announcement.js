@@ -70,7 +70,7 @@ const Announcement = ({ post, className }) => {
       {(post?.blockMap || siteInfo?.description) && (
         <div className="w-full">
           {/* 像素级对齐容器：与 Top Favorite 一模一样的外框与间距 */}
-          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5">
+          <div className="flex items-center text-base font-bold text-gray-800 dark:text-gray-100 tracking-wide mb-2.5 pl-1">
             <span className="w-6 h-6 inline-flex items-center justify-center mr-2 text-blue-500 shrink-0">
               <i className="fas fa-bullhorn text-base" />
             </span>
