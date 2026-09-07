@@ -302,6 +302,15 @@ const nextConfig = {
 
       return [
         ...langsRewrites,
+        // ==========================================
+        // 【新增】：代理 Google 翻译 API，绕过大陆网络封锁
+        // ==========================================
+        {
+          source: '/google-api/:path*',
+          destination: 'https://translate.googleapis.com/:path*',
+        },
+        // ==========================================
+        
         // RSS fallback: when static file doesn't exist, route to API
         {
           source: '/rss/feed.xml',
