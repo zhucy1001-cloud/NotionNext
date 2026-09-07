@@ -48,79 +48,60 @@ export default function GoogleTranslate() {
       return origFetch.apply(this, args)
     }
 
-    // 2. 注入精细化美化 CSS，完美适配 Hexo 主题的亮色/暗黑模式
+    // 2. 注入极其安全且美观的 CSS，确保绝对不会隐形
     const style = document.createElement('style')
     style.innerHTML = `
-      /* 隐藏顶部的黑色横幅和悬浮提示 */
       .goog-te-banner-frame { display: none !important; }
       .skiptranslate { display: none !important; }
       body { top: 0 !important; position: relative !important; }
       html { top: 0 !important; }
       #goog-gt-tt { display: none !important; }
       .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+      .goog-logo-link { display: none !important; }
+      .goog-te-gadget span { display: none !important; }
 
-      /* 美化 Google 翻译的外层容器，让它完美融入导航栏 */
-      .goog-te-gadget {
-        font-size: 0px !important;
-        color: transparent !important;
-      }
-      
-      /* 隐藏 Google 丑陋的文字 Logo */
-      .goog-logo-link {
-        display: none !important;
-      }
-      .goog-te-gadget span {
-        display: none !important;
-      }
-
-      /* 精心雕琢下拉选择框，使其风格与网站自带按钮统一 */
+      /* 下拉框美化：保证字体正常显示，带有现代感圆角和边框 */
       .goog-te-gadget .goog-te-combo {
-        font-size: 13px !important;
+        font-size: 14px !important;
         font-family: inherit !important;
-        padding: 4px 10px !important;
+        padding: 4px 8px !important;
         border-radius: 6px !important;
         outline: none !important;
         cursor: pointer !important;
-        transition: all 0.2s ease-in-out !important;
-        /* 默认浅色模式样式：半透明白底，细腻边框，契合毛玻璃导航栏 */
-        background-color: rgba(255, 255, 255, 0.6) !important;
-        border: 1px solid rgba(209, 213, 219, 0.6) !important;
-        color: #374151 !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        border: 1px solid rgba(209, 213, 219, 0.8) !important;
+        color: #1f2937 !important;
       }
-
-      /* 悬停效果 */
       .goog-te-gadget .goog-te-combo:hover {
-        border-color: rgba(156, 163, 175, 0.9) !important;
-        background-color: rgba(255, 255, 255, 0.9) !important;
+        background-color: #ffffff !important;
+        border-color: #9ca3af !important;
       }
 
-      /* 暗黑模式适配：自动切换为暗色毛玻璃背景与浅灰文字 */
+      /* 暗黑模式自适应 */
       .dark .goog-te-gadget .goog-te-combo {
-        background-color: rgba(31, 41, 55, 0.7) !important;
-        border: 1px solid rgba(75, 85, 99, 0.6) !important;
-        color: #d1d5db !important;
+        background-color: rgba(31, 41, 55, 0.8) !important;
+        border: 1px solid rgba(75, 85, 99, 0.8) !important;
+        color: #f3f4f6 !important;
       }
       .dark .goog-te-gadget .goog-te-combo:hover {
-        background-color: rgba(31, 41, 55, 0.9) !important;
-        border-color: rgba(156, 163, 175, 0.8) !important;
+        background-color: rgba(31, 41, 55, 1) !important;
+        border-color: #9ca3af !important;
       }
     `
     document.head.appendChild(style)
 
-    // 3. 初始化 Google 翻译组件
+    // 3. 初始化 Google 翻译
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement(
         { 
           pageLanguage: 'auto', 
           autoDisplay: false,
-          // 如果你希望限制只显示部分语言，可以在这里配置，目前默认包含所有语言
           layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
         },
         'google_translate_element'
       )
     }
 
-    // 防止重复注入脚本
     if (!document.getElementById('google-translate-script')) {
       const script = document.createElement('script')
       script.id = 'google-translate-script'
@@ -130,8 +111,7 @@ export default function GoogleTranslate() {
   }, [])
 
   return (
-    <div className="inline-block relative z-50 mx-1 flex items-center">
-      {/* 渲染官方下拉菜单挂载点 */}
+    <div className="inline-block relative z-50 mx-2 flex items-center">
       <div id="google_translate_element"></div>
     </div>
   )
