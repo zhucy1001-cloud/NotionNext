@@ -14,6 +14,8 @@ import SearchDrawer from './SearchDrawer'
 import SideBar from './SideBar'
 import SideBarDrawer from './SideBarDrawer'
 import TagGroups from './TagGroups'
+// 【新增】引入我们刚刚写好的原生免费 Google 翻译组件
+import GoogleTranslate from '@/components/GoogleTranslate'
 
 let windowTop = 0
 
@@ -164,6 +166,12 @@ const Header = props => {
               {' '}
               <MenuListTop {...props} />
             </div>
+
+            {/* 【新增】：在这里挂载原生翻译组件，排在放大镜左侧 */}
+            <div className="mx-2">
+              <GoogleTranslate />
+            </div>
+
             <div
               onClick={toggleMenuOpen}
               className='w-8 justify-center items-center h-8 cursor-pointer flex lg:hidden'>
