@@ -1,10 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function GoogleTranslate() {
+  const [currentLang, setCurrentLang] = useState('zh-CN')
+
   useEffect(() => {
+    // 1. 检查当前语言状态
+    const match = document.cookie.match(/googtrans=\/([^;]+)/)
+    if (match && match[1]) {
+      // 格式通常是 zh-CN/en 或者直接是 en
+      const lang = match[1].split('/')[1] || match[1]
+      setCurrentLang(lang)
+    }
+
     const proxyPath = '/google-api'
 
-    // 1. 代理拦截
+    // 2. 代理拦截脚本与请求
     const originalCreateElement = document.createElement
     document.createElement = function (tagName) {
       const el = originalCreateElement.call(document, tagName)
@@ -17,18 +27,6 @@ export default function GoogleTranslate() {
           }
           originalSetAttribute.call(this, name, value)
         }
-        
-        const propertyName = tagName.toLowerCase() === 'script' ? 'src' : 'href'
-        Object.defineProperty(el, propertyName, {
-          set(val) {
-            if (val && val.includes('translate.googleapis.com')) {
-              val = val.replace('https://translate.googleapis.com', proxyPath)
-              val = val.replace('//translate.googleapis.com', proxyPath)
-            }
-            originalSetAttribute.call(el, propertyName, val)
-          },
-          get() { return el.getAttribute(propertyName) }
-        })
       }
       return el
     }
@@ -40,15 +38,8 @@ export default function GoogleTranslate() {
       }
       return origOpen.apply(this, arguments)
     }
-    const origFetch = window.fetch
-    window.fetch = async function(...args) {
-      if (typeof args[0] === 'string' && args[0].includes('translate.googleapis.com')) {
-        args[0] = args[0].replace('https://translate.googleapis.com', proxyPath).replace('//translate.googleapis.com', proxyPath)
-      }
-      return origFetch.apply(this, args)
-    }
 
-    // 2. 注入极其安全且美观的 CSS，确保绝对不会隐形
+    // 3. 注入样式：清除 Google 默认横幅和各种噪音
     const style = document.createElement('style')
     style.innerHTML = `
       .goog-te-banner-frame { display: none !important; }
@@ -57,49 +48,21 @@ export default function GoogleTranslate() {
       html { top: 0 !important; }
       #goog-gt-tt { display: none !important; }
       .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-      .goog-logo-link { display: none !important; }
-      .goog-te-gadget span { display: none !important; }
-
-      /* 下拉框美化：保证字体正常显示，带有现代感圆角和边框 */
-      .goog-te-gadget .goog-te-combo {
-        font-size: 14px !important;
-        font-family: inherit !important;
-        padding: 4px 8px !important;
-        border-radius: 6px !important;
-        outline: none !important;
-        cursor: pointer !important;
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        border: 1px solid rgba(209, 213, 219, 0.8) !important;
-        color: #1f2937 !important;
-      }
-      .goog-te-gadget .goog-te-combo:hover {
-        background-color: #ffffff !important;
-        border-color: #9ca3af !important;
-      }
-
-      /* 暗黑模式自适应 */
-      .dark .goog-te-gadget .goog-te-combo {
-        background-color: rgba(31, 41, 55, 0.8) !important;
-        border: 1px solid rgba(75, 85, 99, 0.8) !important;
-        color: #f3f4f6 !important;
-      }
-      .dark .goog-te-gadget .goog-te-combo:hover {
-        background-color: rgba(31, 41, 55, 1) !important;
-        border-color: #9ca3af !important;
-      }
     `
     document.head.appendChild(style)
 
-    // 3. 初始化 Google 翻译
+    // 4. 加载官方翻译核心，并在其自带下拉生成后隐藏它（作为内核驱动）
     window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        { 
-          pageLanguage: 'auto', 
-          autoDisplay: false,
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
-        },
-        'google_translate_element'
-      )
+      if (!document.getElementById('hidden_google_translate_div')) {
+        const div = document.createElement('div')
+        div.id = 'hidden_google_translate_div'
+        div.style.display = 'none'
+        document.body.appendChild(div)
+        new window.google.translate.TranslateElement(
+          { pageLanguage: 'auto', autoDisplay: false },
+          'hidden_google_translate_div'
+        )
+      }
     }
 
     if (!document.getElementById('google-translate-script')) {
@@ -110,9 +73,36 @@ export default function GoogleTranslate() {
     }
   }, [])
 
+  // 5. 切换语言事件：通过操作 Google 底层的 select 并种下 Cookie
+  const handleLanguageChange = (e) => {
+    const lang = e.target.value
+    setCurrentLang(lang)
+    
+    if (lang === 'zh-CN') {
+      // 恢复中文：清除 Cookie
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${location.hostname}`
+    } else {
+      // 切换目标语言
+      document.cookie = `googtrans=/auto/${lang}; path=/; domain=${location.hostname}`
+      document.cookie = `googtrans=/auto/${lang}; path=/;`
+    }
+    window.location.reload()
+  }
+
   return (
     <div className="inline-block relative z-50 mx-2 flex items-center">
-      <div id="google_translate_element"></div>
+      {/* 采用高度契合 Hexo 主题风格的精致原生下拉框，绝对不会渲染失败 */}
+      <select 
+        value={currentLang} 
+        onChange={handleLanguageChange}
+        className="text-xs font-medium py-1 px-2 rounded-md outline-none cursor-pointer transition-all duration-200 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 border border-black/10 dark:border-white/10"
+      >
+        <option value="zh-CN" className="bg-white dark:bg-gray-800 text-black dark:text-white">中文 (简体)</option>
+        <option value="en" className="bg-white dark:bg-gray-800 text-black dark:text-white">English</option>
+        <option value="ja" className="bg-white dark:bg-gray-800 text-black dark:text-white">日本語</option>
+        <option value="ko" className="bg-white dark:bg-gray-800 text-black dark:text-white">한국어</option>
+      </select>
     </div>
   )
 }
