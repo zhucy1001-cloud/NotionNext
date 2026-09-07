@@ -1,10 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function GoogleTranslate() {
+  const [currentLang, setCurrentLang] = useState('zh-CN')
+
   useEffect(() => {
+    // 1. 初始化时检查当前 cookie 中的语言状态
+    const match = document.cookie.match(/googtrans=\/([^;]+)/)
+    if (match && match[1]) {
+      const lang = match[1].split('/')[1] || match[1]
+      setCurrentLang(lang)
+    }
+
     const proxyPath = '/google-api'
 
-    // 1. 代理拦截
+    // 2. 代理拦截 Google 翻译的所有网络请求和资源
     const originalCreateElement = document.createElement
     document.createElement = function (tagName) {
       const el = originalCreateElement.call(document, tagName)
@@ -17,18 +26,6 @@ export default function GoogleTranslate() {
           }
           originalSetAttribute.call(this, name, value)
         }
-        
-        const propertyName = tagName.toLowerCase() === 'script' ? 'src' : 'href'
-        Object.defineProperty(el, propertyName, {
-          set(val) {
-            if (val && val.includes('translate.googleapis.com')) {
-              val = val.replace('https://translate.googleapis.com', proxyPath)
-              val = val.replace('//translate.googleapis.com', proxyPath)
-            }
-            originalSetAttribute.call(el, propertyName, val)
-          },
-          get() { return el.getAttribute(propertyName) }
-        })
       }
       return el
     }
@@ -41,7 +38,7 @@ export default function GoogleTranslate() {
       return origOpen.apply(this, arguments)
     }
 
-    // 2. 注入 CSS：干掉横幅，并把 Google 原生的下拉框穿上好看的“皮肤”
+    // 3. 注入 CSS 清除顶部横幅和高亮色块
     const style = document.createElement('style')
     style.innerHTML = `
       .goog-te-banner-frame { display: none !important; }
@@ -50,56 +47,19 @@ export default function GoogleTranslate() {
       html { top: 0 !important; }
       #goog-gt-tt { display: none !important; }
       .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-      .goog-logo-link { display: none !important; }
-      .goog-te-gadget span { display: none !important; }
-
-      /* 让 Google 自带的容器文字变透明，只保留它生成的原生 select 下拉菜单 */
-      .goog-te-gadget {
-        font-size: 0px !important;
-        color: transparent !important;
-      }
-
-      /* 核心：用 CSS 精心美化 Google 生成的下拉框，让它拥有全量语言且颜值在线 */
-      .goog-te-gadget .goog-te-combo {
-        font-size: 13px !important;
-        font-family: inherit !important;
-        padding: 4px 8px !important;
-        border-radius: 6px !important;
-        outline: none !important;
-        cursor: pointer !important;
-        transition: all 0.2s ease-in-out !important;
-        background-color: rgba(255, 255, 255, 0.15) !important;
-        border: 1px solid rgba(209, 213, 219, 0.3) !important;
-        color: #374151 !important;
-      }
-      .goog-te-gadget .goog-te-combo:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        border-color: rgba(156, 163, 175, 0.6) !important;
-      }
-
-      /* 暗黑模式自适应 */
-      .dark .goog-te-gadget .goog-te-combo {
-        background-color: rgba(31, 41, 55, 0.5) !important;
-        border: 1px solid rgba(75, 85, 99, 0.4) !important;
-        color: #d1d5db !important;
-      }
-      .dark .goog-te-gadget .goog-te-combo:hover {
-        background-color: rgba(31, 41, 55, 0.8) !important;
-        border-color: rgba(156, 163, 175, 0.6) !important;
-      }
     `
     document.head.appendChild(style)
 
-    // 3. 初始化 Google 翻译组件，让它把全世界所有官方支持的语言全部加载出来
+    // 4. 在后台静默加载 Google 翻译核心引擎（不依赖它来显示外观）
     window.googleTranslateElementInit = () => {
-      if (!document.getElementById('google_translate_element').hasChildNodes()) {
+      if (!document.getElementById('hidden_google_translate_div')) {
+        const div = document.createElement('div')
+        div.id = 'hidden_google_translate_div'
+        div.style.display = 'none'
+        document.body.appendChild(div)
         new window.google.translate.TranslateElement(
-          { 
-            pageLanguage: 'auto', 
-            autoDisplay: false,
-            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
-          },
-          'google_translate_element'
+          { pageLanguage: 'auto', autoDisplay: false },
+          'hidden_google_translate_div'
         )
       }
     }
@@ -112,10 +72,38 @@ export default function GoogleTranslate() {
     }
   }, [])
 
+  // 5. 切换语言：种下标准 Google 翻译 Cookie 并刷新
+  const handleLanguageChange = (e) => {
+    const lang = e.target.value
+    setCurrentLang(lang)
+    
+    if (lang === 'zh-CN') {
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${location.hostname}`
+    } else {
+      document.cookie = `googtrans=/auto/${lang}; path=/; domain=${location.hostname}`
+      document.cookie = `googtrans=/auto/${lang}; path=/;`
+    }
+    window.location.reload()
+  }
+
   return (
     <div className="inline-block relative z-50 mx-2 flex items-center">
-      {/* 挂载点：Google 会自动在这里生成包含完整世界语言的精美下拉菜单 */}
-      <div id="google_translate_element"></div>
+      {/* 采用完全自主渲染的下拉菜单，绝对秒出、绝不消失，并内置全球主流官方语言 */}
+      <select 
+        value={currentLang} 
+        onChange={handleLanguageChange}
+        className="text-xs font-medium py-1 px-2 rounded-md outline-none cursor-pointer transition-all duration-200 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 border border-black/10 dark:border-white/10"
+      >
+        <option value="zh-CN" className="bg-white dark:bg-gray-800 text-black dark:text-white">简体中文</option>
+        <option value="en" className="bg-white dark:bg-gray-800 text-black dark:text-white">English</option>
+        <option value="ja" className="bg-white dark:bg-gray-800 text-black dark:text-white">日本語</option>
+        <option value="ko" className="bg-white dark:bg-gray-800 text-black dark:text-white">한국어</option>
+        <option value="fr" className="bg-white dark:bg-gray-800 text-black dark:text-white">Français</option>
+        <option value="de" className="bg-white dark:bg-gray-800 text-black dark:text-white">Deutsch</option>
+        <option value="es" className="bg-white dark:bg-gray-800 text-black dark:text-white">Español</option>
+        <option value="ru" className="bg-white dark:bg-gray-800 text-black dark:text-white">Русский</option>
+      </select>
     </div>
   )
 }
